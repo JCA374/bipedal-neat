@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+
+# Runs are local; the published run is whitelisted (no checkpoints)
+runs/*
+!runs/baseline/
+runs/baseline/checkpoints/

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEAT Bipedal Walker</title>
+<meta name="description" content="NEAT evolves the weights and the shape of a neural network, with at least one hidden layer, that teaches Gymnasium's BipedalWalker to walk. Clips of each stage, the training curve and the evolved network.">
+<meta property="og:title" content="NEAT Bipedal Walker">
+<meta property="og:description" content="Evolving a neural network, weights and shape, that learns to walk.">
+<meta property="og:image" content="clips/best.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b1020'/%3E%3Crect x='9' y='9' width='14' height='7' rx='2' fill='%23ffb840'/%3E%3Cpath d='M12 16l-2 9M20 16l3 9' stroke='%23ffb840' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f8fb; --surface: #ffffff; --surface-2: #eef1f7;
+    --text: #141a2e; --muted: #5a6582; --line: #dde2ee; --grid: #e8ecf4;
+    --accent: #b86e00; --accent-bg: #fff3dc;
+    --blue: #2f6fd6; --green: #1d8f55;
+    --code-bg: #0f1530; --code-text: #e8ecf5;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+    --pos: #2a78d6; --neg: #eb6834;
+    --shadow: 0 1px 2px rgba(20,26,46,.06), 0 8px 24px rgba(20,26,46,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020; --surface: #131a33; --surface-2: #19223f;
+      --text: #e8ecf5; --muted: #97a3c2; --line: #26304f; --grid: #1f2846;
+      --accent: #ffb840; --accent-bg: #2a2410;
+      --blue: #60a8ff; --green: #54d48c; --code-bg: #070b18;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+      --pos: #3987e5; --neg: #d95926;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --surface: #131a33; --surface-2: #19223f;
+    --text: #e8ecf5; --muted: #97a3c2; --line: #26304f; --grid: #1f2846;
+    --accent: #ffb840; --accent-bg: #2a2410;
+    --blue: #60a8ff; --green: #54d48c; --code-bg: #070b18;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --pos: #3987e5; --neg: #d95926;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--blue); }
+  img, video { max-width: 100%; display: block; }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  :not(pre) > code { background: var(--surface-2); padding: .1em .35em; border-radius: 4px; font-size: .92em; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-size: 14px; line-height: 1.55; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; gap: 12px; }
+  .brand { font-weight: 700; text-decoration: none; color: var(--text); }
+  .brand span { color: var(--accent); }
+  .top nav { display: flex; gap: 18px; align-items: center; font-size: 15px; flex-wrap: wrap; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--text); }
+  .theme-btn { border: 1px solid var(--line); background: var(--surface); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+
+  .hero { padding: 28px 0 8px; }
+  .hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.08; margin: 0 0 14px; letter-spacing: -.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .lede { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 740px; margin: 0 0 26px; }
+  .video-card { border-radius: 14px; overflow: hidden; background: #000; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .video-card video { width: 100%; aspect-ratio: 3 / 2; }
+  .note { color: var(--muted); font-size: 14px; margin: 10px 2px 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0 6px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .stat b { display: block; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); font-size: 14px; }
+
+  section { padding: 46px 0 6px; }
+  section h2 { font-size: clamp(25px, 3.4vw, 32px); letter-spacing: -.015em; margin: 0 0 8px; }
+  section h2 .num { color: var(--accent); margin-right: 8px; }
+  p.intro { color: var(--muted); max-width: 760px; margin-top: 0; }
+
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 18px; }
+  .clip { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .clip video { width: 100%; aspect-ratio: 3 / 2; background: #000; }
+  .clip .body { padding: 12px 14px 14px; }
+  .clip h3 { margin: 0 0 2px; font-size: 17px; }
+  .clip p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12.5px; background: var(--surface-2); border-radius: 999px; padding: 2px 9px; color: var(--muted); }
+  .chip b { color: var(--text); font-weight: 600; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 16px 16px 10px; margin-top: 18px; position: relative; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: var(--muted); margin: 0 0 6px 4px; }
+  .legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+  .chart svg, .net svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 760px) { .chart svg, .net svg { min-width: 680px; } }
+  .axis text { fill: var(--muted); font-size: 12px; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    opacity: 0; transition: opacity .1s; min-width: 150px; z-index: 5; }
+  .tip .row { display: flex; justify-content: space-between; gap: 14px; }
+  .tip .row span { color: var(--muted); }
+  .tip i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  details { margin-top: 10px; font-size: 14px; }
+  summary { cursor: pointer; color: var(--muted); }
+  .tablewrap { max-height: 320px; overflow: auto; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--line); }
+  th { position: sticky; top: 0; background: var(--surface-2); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 10px; }
+  .cols ul { padding-left: 20px; margin: 0; }
+  .cols li { margin-bottom: 8px; }
+  footer { color: var(--muted); font-size: 14px; padding: 40px 0 50px; border-top: 1px solid var(--line); margin-top: 50px; }
+
+  @media (max-width: 760px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+    .top nav a.opt { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#">NEAT <span>Bipedal Walker</span></a>
+    <nav>
+      <a href="#clips">Progress</a>
+      <a href="#curve" class="opt">Training</a>
+      <a href="#network" class="opt">Network</a>
+      <a href="#how" class="opt">How</a>
+      <a href="https://github.com/JCA374/bipedal-neat">Code</a>
+      <button class="theme-btn" id="theme" aria-label="Toggle dark mode">◐</button>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Evolving a network that <em>learns to walk</em></h1>
+    <p class="lede">NEAT evolves both the weights and the shape of a small neural network that drives
+      Gymnasium's BipedalWalker. No gradients and no GPU: just a population of 200 networks on a 4-core
+      laptop, mutating, competing and growing. Every champion has at least one hidden layer.</p>
+    <div class="video-card"><video id="heroVideo" autoplay muted loop playsinline></video></div>
+    <p class="note" id="heroNote"></p>
+    <div class="stats" id="stats"></div>
+  </div>
+</div>
+
+<section id="clips"><div class="wrap">
+  <h2><span class="num">1</span>Progress, stage by stage</h2>
+  <p class="intro">Each clip shows the champion at that stage on its <b>median</b> run: of the 10 unseen
+    terrains it was judged on, the one with the middle score. That makes it a typical run, not a lucky or
+    unlucky one. Played at 2× speed. The score in the corner is the running reward on that terrain, and "avg"
+    is the mean over all 10.</p>
+  <div class="clips" id="clipGrid"></div>
+</div></section>
+
+<section id="curve"><div class="wrap">
+  <h2><span class="num">2</span>Training curve</h2>
+  <p class="intro">Fitness is the mean reward over 3 terrains per generation, shared by the whole population.
+    An episode is cut short if the walker stops moving forward, so standing still scores about −9 while
+    falling costs −100. The champion line is the re-check on 10 unseen terrains every 10 generations.</p>
+  <div class="panel chart">
+    <div class="legend" id="legend"></div>
+    <div class="scroll-x"><div id="chart"></div></div>
+    <div class="tip" id="tip"></div>
+  </div>
+  <details><summary>Show the data as a table</summary><div class="tablewrap"><table id="table"></table></div></details>
+</div></section>
+
+<section id="network"><div class="wrap">
+  <h2><span class="num">3</span>The evolved network</h2>
+  <p class="intro" id="netIntro"></p>
+  <div class="panel net">
+    <div class="legend"><span><i style="background:var(--pos)"></i>positive weight</span><span><i style="background:var(--neg)"></i>negative weight</span><span>line width = |weight|</span></div>
+    <div class="scroll-x"><div id="net"></div></div>
+    <div class="tip" id="netTip"></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2><span class="num">4</span>How it works</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><b>NEAT</b> (NeuroEvolution of Augmenting Topologies) mutates weights, adds connections and adds
+          nodes. Similar networks are grouped into species so new structure gets time to prove itself.</li>
+        <li><b>Hidden layer guaranteed.</b> Every network starts as 24 → 8 → 4 with no direct input-to-output
+          links. Networks with no hidden node on an input-to-output path are penalised and can never become
+          champion.</li>
+        <li><b>Fair fitness.</b> All genomes in a generation run on the same 3 terrains, which change every
+          generation. Raw environment reward, so scores compare directly with PPO and TD3.</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li><b>Early stop.</b> An episode ends when the hull moves less than 1 unit in 150 steps. That saves most
+          of the simulation time, but it also makes standing still a tempting local optimum.</li>
+        <li><b>Hall of fame.</b> Every 10 generations the top 5 are re-run on 10 unseen terrains with full
+          episodes. Only that average picks the champion and the milestones.</li>
+        <li><b>Hardware.</b> Intel i5-8250U (4 cores / 8 threads), no GPU, 4 worker processes at ~50 MB each,
+          sharing the CPU with another training run.</li>
+      </ul>
+    </div>
+  </div>
+  <pre id="cmds">python train.py --name baseline --hours 2 --workers 4
+python evaluate.py --run runs/baseline --episodes 100
+python record_video.py --run runs/baseline</pre>
+</div></section>
+
+<div class="wrap"><footer id="foot"></footer></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+// ---------- theme toggle
+(() => {
+  const root = document.documentElement, btn = document.getElementById("theme");
+  try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  btn.onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  };
+})();
+
+const fmt = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + v.toFixed(d);
+const svgEl = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+
+// ---------- hero, stats, clips
+(() => {
+  const last = DATA.clips[DATA.clips.length - 1];
+  const hv = document.getElementById("heroVideo");
+  hv.src = `clips/${last.key}.mp4`; hv.poster = `clips/${last.key}.jpg`;
+  document.getElementById("heroNote").textContent =
+    `${last.title}, generation ${last.generation}: average ${fmt(last.mean)} ± ${last.std} on 10 unseen terrains. ` +
+    `${last.hidden_in_use} hidden nodes in ${last.depth - 1} hidden layer${last.depth > 2 ? "s" : ""}.`;
+  const s = DATA.stats, lastRow = s[s.length - 1];
+  const tiles = [
+    [fmt(DATA.champion.mean), "champion average reward (10 unseen terrains)", "var(--s1)"],
+    [String(lastRow.g + 1), "generations so far"],
+    [String(DATA.champion.hidden_in_use), `hidden nodes in use (depth ${DATA.champion.depth})`],
+    [`${(lastRow.wall / 3600).toFixed(1)} h`, `training time · ${(lastRow.steps / 1e6).toFixed(1)} M env steps`],
+  ];
+  document.getElementById("stats").innerHTML = tiles.map(([b, t, c]) =>
+    `<div class="stat"><b${c ? ` style="color:${c}"` : ""}>${b}</b><span>${t}</span></div>`).join("");
+  document.getElementById("clipGrid").innerHTML = DATA.clips.map(c => `
+    <div class="clip">
+      <video src="clips/${c.key}.mp4" poster="clips/${c.key}.jpg" autoplay muted loop playsinline preload="metadata"></video>
+      <div class="body"><h3>${c.title}</h3><p>${c.desc}</p>
+        <div class="chips">
+          ${c.mean != null ? `<span class="chip">avg <b>${fmt(c.mean)}</b> ± ${c.std}</span>` : ""}
+          ${c.reward_clip != null ? `<span class="chip">this run <b>${fmt(c.reward_clip)}</b> (terrain ${c.terrain}/10)</span>` : ""}
+          <span class="chip"><b>${c.hidden_in_use}</b> hidden · depth ${c.depth}</span>
+          <span class="chip"><b>${c.enabled_conns}</b> connections</span>
+        </div></div>
+    </div>`).join("");
+  // Pause clips that are off screen.
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()));
+  document.querySelectorAll("video").forEach(v => io.observe(v));
+  document.getElementById("foot").innerHTML =
+    `Run <code>${DATA.run}</code>, page built ${DATA.built}. Gymnasium BipedalWalker-v3, neat-python 0.92. ` +
+    `Part of a series comparing PPO, TD3 and NEAT on the same laptop.`;
+})();
+
+// ---------- training curve
+(() => {
+  const rows = DATA.stats;
+  let champ = null;
+  const champRows = rows.map(r => { if (r.hof != null && (champ == null || r.hof > champ)) champ = r.hof; return champ; });
+  const series = [
+    { key: "champ", name: "Champion (10 unseen terrains)", color: "var(--s1)", width: 2.5, vals: champRows, step: true },
+    { key: "best", name: "Best of generation (3 terrains)", color: "var(--s2)", width: 1.5, vals: rows.map(r => r.best) },
+    { key: "mean", name: "Population mean", color: "var(--s3)", width: 2, vals: rows.map(r => r.mean) },
+  ];
+  document.getElementById("legend").innerHTML = series.map(s => `<span><i style="background:${s.color}"></i>${s.name}</span>`).join("");
+
+  const W = 960, H = 380, m = { l: 48, r: 92, t: 14, b: 34 };
+  const gMax = rows[rows.length - 1].g;
+  const all = series.flatMap(s => s.vals).filter(v => v != null);
+  const yMin = Math.floor(Math.min(...all) / 50) * 50, yMax = Math.ceil(Math.max(...all, 0) / 50) * 50;
+  const x = g => m.l + (g / Math.max(1, gMax)) * (W - m.l - m.r);
+  const y = v => m.t + (1 - (v - yMin) / (yMax - yMin)) * (H - m.t - m.b);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Training curve" }, document.getElementById("chart"));
+  const ax = svgEl("g", { class: "axis" }, svg);
+  for (let v = yMin; v <= yMax; v += 50) {
+    svgEl("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? "var(--muted)" : "var(--grid)", "stroke-width": 1, "stroke-dasharray": v === 0 ? "3 3" : "" }, ax);
+    svgEl("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, ax).textContent = v;
+  }
+  const xStep = gMax > 150 ? 50 : gMax > 60 ? 20 : 10;
+  for (let g = 0; g <= gMax; g += xStep) svgEl("text", { x: x(g), y: H - 12, "text-anchor": "middle" }, ax).textContent = g;
+  svgEl("text", { x: (m.l + W - m.r) / 2, y: H, "text-anchor": "middle" }, ax).textContent = "generation";
+  // Milestone markers.
+  for (const [name, mm] of Object.entries(DATA.milestones)) {
+    svgEl("line", { x1: x(mm.generation), x2: x(mm.generation), y1: m.t, y2: H - m.b, stroke: "var(--muted)", "stroke-dasharray": "2 4", "stroke-width": 1 }, ax);
+    svgEl("text", { x: x(mm.generation) + 4, y: m.t + 10, "font-size": 11 }, ax).textContent = name === "first_positive" ? "first > 0" : `≥ ${name}`;
+  }
+  for (const s of [...series].reverse()) {
+    let d = "", prev = null;
+    rows.forEach((r, i) => {
+      const v = s.vals[i]; if (v == null) { prev = null; return; }
+      if (prev == null) d += `M${x(r.g)},${y(v)}`;
+      else d += s.step ? `H${x(r.g)}V${y(v)}` : `L${x(r.g)},${y(v)}`;
+      prev = v;
+    });
+    svgEl("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  }
+  // Direct labels at the right end (text in ink, a colored dash for identity).
+  const ends = series.map(s => ({ s, v: s.vals[s.vals.length - 1] })).filter(e => e.v != null).sort((a, b) => b.v - a.v);
+  let lastY = -1e9;
+  for (const e of ends) {
+    let ly = Math.max(y(e.v), lastY + 16); lastY = ly;
+    svgEl("line", { x1: W - m.r + 6, x2: W - m.r + 16, y1: ly, y2: ly, stroke: e.s.color, "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    svgEl("text", { x: W - m.r + 20, y: ly + 4, "font-size": 12, fill: "var(--text)" }, svg).textContent = fmt(e.v, 0);
+  }
+  // Hover: crosshair + tooltip.
+  const cross = svgEl("line", { y1: m.t, y2: H - m.b, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
+  const dots = series.map(s => svgEl("circle", { r: 4.5, fill: s.color, stroke: "var(--surface)", "stroke-width": 2, opacity: 0 }, svg));
+  const hit = svgEl("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  const tip = document.getElementById("tip"), panel = tip.parentElement;
+  const move = ev => {
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const g = Math.round((p.x - m.l) / (W - m.l - m.r) * gMax);
+    const i = Math.max(0, Math.min(rows.length - 1, rows.findIndex(r => r.g >= g)));
+    const r = rows[i];
+    cross.setAttribute("x1", x(r.g)); cross.setAttribute("x2", x(r.g)); cross.setAttribute("opacity", .6);
+    series.forEach((s, k) => { const v = s.vals[i]; dots[k].setAttribute("opacity", v == null ? 0 : 1); if (v != null) { dots[k].setAttribute("cx", x(r.g)); dots[k].setAttribute("cy", y(v)); } });
+    tip.innerHTML = `<b>Generation ${r.g}</b>` + series.map(s => `<div class="row"><span><i style="background:${s.color}"></i>${s.name.split(" (")[0]}</span><b>${fmt(s.vals[i])}</b></div>`).join("") +
+      `<div class="row"><span>Species</span><b>${r.species}</b></div><div class="row"><span>Best net</span><b>${r.hidden} hidden · depth ${r.depth}</b></div>`;
+    const pr = panel.getBoundingClientRect();
+    let left = ev.clientX - pr.left + 14; if (left + 200 > pr.width) left = ev.clientX - pr.left - 214;
+    tip.style.left = left + "px"; tip.style.top = Math.max(8, ev.clientY - pr.top - 40) + "px"; tip.style.opacity = 1;
+  };
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); dots.forEach(d => d.setAttribute("opacity", 0)); });
+  document.getElementById("table").innerHTML =
+    "<tr><th>Gen</th><th>Champion</th><th>Best</th><th>Mean</th><th>Species</th><th>Hidden</th><th>Depth</th></tr>" +
+    rows.map((r, i) => `<tr><td>${r.g}</td><td>${fmt(champRows[i])}</td><td>${fmt(r.best)}</td><td>${fmt(r.mean)}</td><td>${r.species}</td><td>${r.hidden}</td><td>${r.depth}</td></tr>`).join("");
+})();
+
+// ---------- network
+(() => {
+  const net = DATA.network, c = DATA.champion;
+  const hiddenCols = net.cols - 2;
+  document.getElementById("netIntro").textContent =
+    `The champion from generation ${c.generation}: 24 inputs, ${c.hidden_in_use} hidden nodes in ` +
+    `${hiddenCols} hidden layer${hiddenCols > 1 ? "s" : ""}, 4 motor outputs and ${c.enabled_conns} enabled connections. ` +
+    `NEAT started from 8 hidden nodes in one layer and grew the rest. Hover a node to see what it is.`;
+  const W = 960, rowH = 17, H = 24 * rowH + 40, m = { l: 110, r: 70 };
+  const colX = ci => m.l + ci * (W - m.l - m.r) / (net.cols - 1);
+  const pos = {};
+  for (const n of net.nodes) pos[n.id] = { x: colX(n.col), y: 20 + (n.row + .5) * (H - 40) / n.n, n };
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Champion network" }, document.getElementById("net"));
+  const maxW = Math.max(...net.edges.map(e => Math.abs(e.w)), 1);
+  const edgeEls = [];
+  for (const e of net.edges) {
+    const a = pos[e.a], b = pos[e.b]; if (!a || !b) continue;
+    const mx = (a.x + b.x) / 2;
+    edgeEls.push([e, svgEl("path", { d: `M${a.x},${a.y}C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`, fill: "none",
+      stroke: e.w >= 0 ? "var(--pos)" : "var(--neg)", "stroke-width": .4 + 2.6 * Math.abs(e.w) / maxW, opacity: .45 }, svg)]);
+  }
+  const tip = document.getElementById("netTip"), panel = tip.parentElement;
+  for (const n of net.nodes) {
+    const p = pos[n.id], isIn = n.col === 0, isOut = n.col === net.cols - 1;
+    const circ = svgEl("circle", { cx: p.x, cy: p.y, r: isIn ? 5 : 8, fill: isIn ? "var(--surface-2)" : isOut ? "var(--accent)" : "var(--surface)",
+      stroke: isIn ? "var(--muted)" : "var(--text)", "stroke-width": 1.5 }, svg);
+    if (isIn) svgEl("text", { x: p.x - 10, y: p.y + 4, "text-anchor": "end", "font-size": 11, fill: "var(--muted)" }, svg).textContent = n.name;
+    if (isOut) svgEl("text", { x: p.x + 14, y: p.y + 4, "font-size": 12, fill: "var(--text)" }, svg).textContent = n.name;
+    const hit = svgEl("circle", { cx: p.x, cy: p.y, r: 12, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", ev => {
+      const ins = net.edges.filter(e => e.b === n.id).length, outs = net.edges.filter(e => e.a === n.id).length;
+      tip.innerHTML = `<b>${n.name}</b><div class="row"><span>in / out links</span><b>${ins} / ${outs}</b></div>` +
+        (n.bias != null ? `<div class="row"><span>bias</span><b>${n.bias}</b></div>` : "");
+      edgeEls.forEach(([e, el]) => el.setAttribute("opacity", e.a === n.id || e.b === n.id ? .95 : .06));
+      const pr = panel.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+      tip.style.left = Math.min(pr.width - 190, (p.x / W) * sr.width + 20) + "px";
+      tip.style.top = ((p.y / H) * sr.height) + "px"; tip.style.opacity = 1;
+    });
+    hit.addEventListener("pointerleave", () => { tip.style.opacity = 0; edgeEls.forEach(([, el]) => el.setAttribute("opacity", .45)); });
+  }
+  for (let ci = 1; ci < net.cols - 1; ci++)
+    svgEl("text", { x: colX(ci), y: H - 2, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, svg).textContent = `hidden ${ci}`;
+})();
+</script>
+</body>
+</html>

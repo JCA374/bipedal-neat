@@ -1,0 +1,5 @@
+numpy<2
+gymnasium[box2d]==0.29.1
+neat-python==0.92
+opencv-python
+pytest==8.3.4

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEAT Bipedal Walker</title>
+<meta name="description" content="NEAT evolves the weights and the shape of a neural network, with at least one hidden layer, that teaches Gymnasium's BipedalWalker to walk. Clips of each stage, the training curve and the evolved network.">
+<meta property="og:title" content="NEAT Bipedal Walker">
+<meta property="og:description" content="Evolving a neural network, weights and shape, that learns to walk.">
+<meta property="og:image" content="clips/best.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b1020'/%3E%3Crect x='9' y='9' width='14' height='7' rx='2' fill='%23ffb840'/%3E%3Cpath d='M12 16l-2 9M20 16l3 9' stroke='%23ffb840' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f7f8fb; --surface: #ffffff; --surface-2: #eef1f7;
+    --text: #141a2e; --muted: #5a6582; --line: #dde2ee; --grid: #e8ecf4;
+    --accent: #b86e00; --accent-bg: #fff3dc;
+    --blue: #2f6fd6; --green: #1d8f55;
+    --code-bg: #0f1530; --code-text: #e8ecf5;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+    --pos: #2a78d6; --neg: #eb6834;
+    --shadow: 0 1px 2px rgba(20,26,46,.06), 0 8px 24px rgba(20,26,46,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1020; --surface: #131a33; --surface-2: #19223f;
+      --text: #e8ecf5; --muted: #97a3c2; --line: #26304f; --grid: #1f2846;
+      --accent: #ffb840; --accent-bg: #2a2410;
+      --blue: #60a8ff; --green: #54d48c; --code-bg: #070b18;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+      --pos: #3987e5; --neg: #d95926;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --surface: #131a33; --surface-2: #19223f;
+    --text: #e8ecf5; --muted: #97a3c2; --line: #26304f; --grid: #1f2846;
+    --accent: #ffb840; --accent-bg: #2a2410;
+    --blue: #60a8ff; --green: #54d48c; --code-bg: #070b18;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --pos: #3987e5; --neg: #d95926;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--blue); }
+  img, video { max-width: 100%; display: block; }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  :not(pre) > code { background: var(--surface-2); padding: .1em .35em; border-radius: 4px; font-size: .92em; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-size: 14px; line-height: 1.55; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; gap: 12px; }
+  .brand { font-weight: 700; text-decoration: none; color: var(--text); }
+  .brand span { color: var(--accent); }
+  .top nav { display: flex; gap: 18px; align-items: center; font-size: 15px; flex-wrap: wrap; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--text); }
+  .theme-btn { border: 1px solid var(--line); background: var(--surface); color: var(--text);
+    border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+
+  .hero { padding: 28px 0 8px; }
+  .hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.08; margin: 0 0 14px; letter-spacing: -.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .lede { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 740px; margin: 0 0 26px; }
+  .video-card { border-radius: 14px; overflow: hidden; background: #000; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .video-card video { width: 100%; aspect-ratio: 3 / 2; }
+  .note { color: var(--muted); font-size: 14px; margin: 10px 2px 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0 6px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .stat b { display: block; font-size: 30px; line-height: 1.1; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); font-size: 14px; }
+
+  section { padding: 46px 0 6px; }
+  section h2 { font-size: clamp(25px, 3.4vw, 32px); letter-spacing: -.015em; margin: 0 0 8px; }
+  section h2 .num { color: var(--accent); margin-right: 8px; }
+  p.intro { color: var(--muted); max-width: 760px; margin-top: 0; }
+
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 18px; }
+  .clip { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .clip video { width: 100%; aspect-ratio: 3 / 2; background: #000; }
+  .clip .body { padding: 12px 14px 14px; }
+  .clip h3 { margin: 0 0 2px; font-size: 17px; }
+  .clip p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12.5px; background: var(--surface-2); border-radius: 999px; padding: 2px 9px; color: var(--muted); }
+  .chip b { color: var(--text); font-weight: 600; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 16px 16px 10px; margin-top: 18px; position: relative; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: var(--muted); margin: 0 0 6px 4px; }
+  .legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+  .chart svg, .net svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 760px) { .chart svg, .net svg { min-width: 680px; } }
+  .axis text { fill: var(--muted); font-size: 12px; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.45; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    opacity: 0; transition: opacity .1s; min-width: 150px; z-index: 5; }
+  .tip .row { display: flex; justify-content: space-between; gap: 14px; }
+  .tip .row span { color: var(--muted); }
+  .tip i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  details { margin-top: 10px; font-size: 14px; }
+  summary { cursor: pointer; color: var(--muted); }
+  .tablewrap { max-height: 320px; overflow: auto; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--line); }
+  th { position: sticky; top: 0; background: var(--surface-2); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 10px; }
+  .cols ul { padding-left: 20px; margin: 0; }
+  .cols li { margin-bottom: 8px; }
+  footer { color: var(--muted); font-size: 14px; padding: 40px 0 50px; border-top: 1px solid var(--line); margin-top: 50px; }
+
+  @media (max-width: 760px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+    .top nav a.opt { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#">NEAT <span>Bipedal Walker</span></a>
+    <nav>
+      <a href="#clips">Progress</a>
+      <a href="#curve" class="opt">Training</a>
+      <a href="#network" class="opt">Network</a>
+      <a href="#how" class="opt">How</a>
+      <a href="https://github.com/JCA374/bipedal-neat">Code</a>
+      <button class="theme-btn" id="theme" aria-label="Toggle dark mode">◐</button>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Evolving a network that <em>learns to walk</em></h1>
+    <p class="lede">NEAT evolves both the weights and the shape of a small neural network that drives
+      Gymnasium's BipedalWalker. No gradients and no GPU: just a population of 200 networks on a 4-core
+      laptop, mutating, competing and growing. Every champion has at least one hidden layer.</p>
+    <div class="video-card"><video id="heroVideo" autoplay muted loop playsinline></video></div>
+    <p class="note" id="heroNote"></p>
+    <div class="stats" id="stats"></div>
+  </div>
+</div>
+
+<section id="clips"><div class="wrap">
+  <h2><span class="num">1</span>Progress, stage by stage</h2>
+  <p class="intro">Each clip shows the champion at that stage on its <b>median</b> run: of the 10 unseen
+    terrains it was judged on, the one with the middle score. That makes it a typical run, not a lucky or
+    unlucky one. Played at 2× speed. The score in the corner is the running reward on that terrain, and "avg"
+    is the mean over all 10.</p>
+  <div class="clips" id="clipGrid"></div>
+</div></section>
+
+<section id="curve"><div class="wrap">
+  <h2><span class="num">2</span>Training curve</h2>
+  <p class="intro">Fitness is the mean reward over 3 terrains per generation, shared by the whole population.
+    An episode is cut short if the walker stops moving forward, so standing still scores about −9 while
+    falling costs −100. The champion line is the re-check on 10 unseen terrains every 10 generations.</p>
+  <div class="panel chart">
+    <div class="legend" id="legend"></div>
+    <div class="scroll-x"><div id="chart"></div></div>
+    <div class="tip" id="tip"></div>
+  </div>
+  <details><summary>Show the data as a table</summary><div class="tablewrap"><table id="table"></table></div></details>
+</div></section>
+
+<section id="network"><div class="wrap">
+  <h2><span class="num">3</span>The evolved network</h2>
+  <p class="intro" id="netIntro"></p>
+  <div class="panel net">
+    <div class="legend"><span><i style="background:var(--pos)"></i>positive weight</span><span><i style="background:var(--neg)"></i>negative weight</span><span>line width = |weight|</span></div>
+    <div class="scroll-x"><div id="net"></div></div>
+    <div class="tip" id="netTip"></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2><span class="num">4</span>How it works</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><b>NEAT</b> (NeuroEvolution of Augmenting Topologies) mutates weights, adds connections and adds
+          nodes. Similar networks are grouped into species so new structure gets time to prove itself.</li>
+        <li><b>Hidden layer guaranteed.</b> Every network starts as 24 → 8 → 4 with no direct input-to-output
+          links. Networks with no hidden node on an input-to-output path are penalised and can never become
+          champion.</li>
+        <li><b>Fair fitness.</b> All genomes in a generation run on the same 3 terrains, which change every
+          generation. Raw environment reward, so scores compare directly with PPO and TD3.</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li><b>Early stop.</b> An episode ends when the hull moves less than 1 unit in 150 steps. That saves most
+          of the simulation time, but it also makes standing still a tempting local optimum.</li>
+        <li><b>Hall of fame.</b> Every 10 generations the top 5 are re-run on 10 unseen terrains with full
+          episodes. Only that average picks the champion and the milestones.</li>
+        <li><b>Hardware.</b> Intel i5-8250U (4 cores / 8 threads), no GPU, 4 worker processes at ~50 MB each,
+          sharing the CPU with another training run.</li>
+      </ul>
+    </div>
+  </div>
+  <pre id="cmds">python train.py --name baseline --hours 2 --workers 4
+python evaluate.py --run runs/baseline --episodes 100
+python record_video.py --run runs/baseline</pre>
+</div></section>
+
+<div class="wrap"><footer id="foot"></footer></div>
+
+<script>
+const DATA = {"built":"2026-10-20 21:36","run":"baseline","stats":[{"g":0,"best":-8.61,"mean":-81.21,"species":10,"hidden":8,"depth":2,"steps":63765,"wall":17.1,"hof":null},{"g":1,"best":-8.67,"mean":-75.82,"species":46,"hidden":8,"depth":2,"steps":130933,"wall":37.1,"hof":null},{"g":2,"best":-8.72,"mean":-82.4,"species":55,"hidden":8,"depth":2,"steps":193101,"wall":58.1,"hof":null},{"g":3,"best":-8.67,"mean":-73.51,"species":61,"hidden":8,"depth":2,"steps":266707,"wall":81.0,"hof":null},{"g":4,"best":-8.47,"mean":-68.54,"species":63,"hidden":8,"depth":2,"steps":338183,"wall":102.5,"hof":null},{"g":5,"best":-7.75,"mean":-68.65,"species":63,"hidden":8,"depth":2,"steps":409122,"wall":123.9,"hof":null},{"g":6,"best":-8.11,"mean":-70.13,"species":63,"hidden":8,"depth":2,"steps":478559,"wall":143.3,"hof":null},{"g":7,"best":-9.11,"mean":-67.99,"species":63,"hidden":7,"depth":2,"steps":549335,"wall":163.1,"hof":null},{"g":8,"best":-8.76,"mean":-66.45,"species":63,"hidden":7,"depth":2,"steps":620630,"wall":184.3,"hof":null},{"g":9,"best":-8.0,"mean":-64.48,"species":63,"hidden":8,"depth":2,"steps":773403,"wall":220.0,"hof":-105.68},{"g":10,"best":-8.11,"mean":-65.15,"species":63,"hidden":8,"depth":2,"steps":850326,"wall":241.2,"hof":null},{"g":11,"best":-8.46,"mean":-58.99,"species":63,"hidden":8,"depth":2,"steps":928381,"wall":261.1,"hof":null},{"g":12,"best":-8.98,"mean":-58.62,"species":63,"hidden":8,"depth":2,"steps":1007808,"wall":281.0,"hof":null},{"g":13,"best":-8.84,"mean":-58.19,"species":63,"hidden":8,"depth":2,"steps":1085757,"wall":300.2,"hof":null},{"g":14,"best":-9.27,"mean":-65.37,"species":63,"hidden":7,"depth":2,"steps":1159599,"wall":317.1,"hof":null},{"g":15,"best":-8.26,"mean":-61.34,"species":63,"hidden":8,"depth":2,"steps":1236154,"wall":336.9,"hof":null},{"g":16,"best":-9.49,"mean":-60.74,"species":63,"hidden":8,"depth":2,"steps":1315473,"wall":357.6,"hof":null},{"g":17,"best":-10.15,"mean":-63.65,"species":63,"hidden":8,"depth":2,"steps":1391874,"wall":378.4,"hof":null},{"g":18,"best":-9.96,"mean":-61.29,"species":63,"hidden":7,"depth":2,"steps":1468251,"wall":396.7,"hof":null},{"g":19,"best":-8.97,"mean":-61.15,"species":63,"hidden":7,"depth":2,"steps":1623468,"wall":431.2,"hof":-108.43},{"g":20,"best":-8.39,"mean":-59.13,"species":63,"hidden":8,"depth":2,"steps":1701204,"wall":452.8,"hof":null},{"g":21,"best":-8.01,"mean":-57.67,"species":61,"hidden":8,"depth":2,"steps":1779693,"wall":473.6,"hof":null},{"g":22,"best":-8.58,"mean":-56.79,"species":54,"hidden":8,"depth":2,"steps":1853817,"wall":492.5,"hof":null},{"g":23,"best":-9.64,"mean":-55.11,"species":48,"hidden":7,"depth":2,"steps":1926918,"wall":510.8,"hof":null},{"g":24,"best":-9.26,"mean":-55.09,"species":47,"hidden":8,"depth":2,"steps":2003159,"wall":529.4,"hof":null},{"g":25,"best":-10.03,"mean":-54.9,"species":47,"hidden":7,"depth":2,"steps":2083012,"wall":549.4,"hof":null},{"g":26,"best":-8.59,"mean":-59.52,"species":45,"hidden":7,"depth":2,"steps":2152816,"wall":566.6,"hof":null},{"g":27,"best":-8.76,"mean":-63.64,"species":43,"hidden":7,"depth":2,"steps":2224068,"wall":585.2,"hof":null},{"g":28,"best":-9.69,"mean":-63.23,"species":43,"hidden":8,"depth":3,"steps":2300475,"wall":603.1,"hof":null},{"g":29,"best":-9.08,"mean":-61.75,"species":41,"hidden":8,"depth":2,"steps":2452142,"wall":633.2,"hof":-108.81},{"g":30,"best":-9.24,"mean":-57.62,"species":39,"hidden":7,"depth":2,"steps":2523975,"wall":650.7,"hof":null},{"g":31,"best":-9.09,"mean":-61.12,"species":39,"hidden":8,"depth":2,"steps":2604147,"wall":670.5,"hof":null},{"g":32,"best":-8.97,"mean":-56.05,"species":37,"hidden":7,"depth":2,"steps":2678818,"wall":688.2,"hof":null},{"g":33,"best":-6.62,"mean":-54.13,"species":35,"hidden":8,"depth":2,"steps":2761804,"wall":707.5,"hof":null},{"g":34,"best":-9.22,"mean":-60.18,"species":34,"hidden":4,"depth":2,"steps":2836502,"wall":724.5,"hof":null},{"g":35,"best":-9.36,"mean":-61.19,"species":31,"hidden":8,"depth":2,"steps":2907786,"wall":741.2,"hof":null},{"g":36,"best":-9.83,"mean":-53.84,"species":30,"hidden":7,"depth":2,"steps":2991488,"wall":760.0,"hof":null},{"g":37,"best":-7.94,"mean":-62.89,"species":30,"hidden":7,"depth":2,"steps":3065253,"wall":777.5,"hof":null},{"g":38,"best":-8.55,"mean":-61.17,"species":30,"hidden":7,"depth":2,"steps":3143349,"wall":795.0,"hof":null},{"g":39,"best":-9.35,"mean":-63.45,"species":30,"hidden":8,"depth":2,"steps":3297921,"wall":828.8,"hof":-108.34},{"g":40,"best":-9.14,"mean":-60.08,"species":29,"hidden":8,"depth":2,"steps":3371248,"wall":846.4,"hof":null},{"g":41,"best":-8.34,"mean":-58.12,"species":28,"hidden":8,"depth":2,"steps":3447227,"wall":863.5,"hof":null},{"g":42,"best":-8.1,"mean":-55.43,"species":28,"hidden":8,"depth":2,"steps":3529043,"wall":884.3,"hof":null},{"g":43,"best":-8.72,"mean":-58.24,"species":28,"hidden":7,"depth":2,"steps":3605075,"wall":903.7,"hof":null},{"g":44,"best":-9.02,"mean":-52.71,"species":27,"hidden":7,"depth":2,"steps":3681107,"wall":922.0,"hof":null},{"g":45,"best":-9.26,"mean":-58.1,"species":27,"hidden":7,"depth":2,"steps":3751960,"wall":938.9,"hof":null},{"g":46,"best":-8.28,"mean":-55.9,"species":26,"hidden":7,"depth":2,"steps":3828855,"wall":954.8,"hof":null},{"g":47,"best":-9.1,"mean":-55.52,"species":26,"hidden":9,"depth":3,"steps":3904486,"wall":973.9,"hof":null},{"g":48,"best":-9.04,"mean":-58.99,"species":26,"hidden":9,"depth":3,"steps":3976402,"wall":992.0,"hof":null},{"g":49,"best":-9.17,"mean":-57.1,"species":25,"hidden":7,"depth":2,"steps":4138008,"wall":1026.4,"hof":-92.93},{"g":50,"best":-8.88,"mean":-63.27,"species":24,"hidden":7,"depth":2,"steps":4207672,"wall":1043.8,"hof":null},{"g":51,"best":-9.04,"mean":-60.89,"species":24,"hidden":7,"depth":2,"steps":4276133,"wall":1060.6,"hof":null},{"g":52,"best":-8.52,"mean":-58.6,"species":24,"hidden":7,"depth":2,"steps":4350964,"wall":1079.1,"hof":null},{"g":53,"best":-7.53,"mean":-56.01,"species":24,"hidden":7,"depth":3,"steps":4425641,"wall":1095.5,"hof":null},{"g":54,"best":-7.69,"mean":-58.75,"species":21,"hidden":7,"depth":3,"steps":4505036,"wall":1112.4,"hof":null},{"g":55,"best":-7.55,"mean":-56.2,"species":19,"hidden":7,"depth":3,"steps":4583484,"wall":1132.0,"hof":null},{"g":56,"best":-7.85,"mean":-58.86,"species":19,"hidden":7,"depth":3,"steps":4656973,"wall":1149.0,"hof":null},{"g":57,"best":-8.53,"mean":-61.05,"species":18,"hidden":9,"depth":4,"steps":4729033,"wall":1167.8,"hof":null},{"g":58,"best":-8.51,"mean":-60.1,"species":17,"hidden":9,"depth":4,"steps":4798302,"wall":1184.4,"hof":null},{"g":59,"best":-8.54,"mean":-58.43,"species":17,"hidden":9,"depth":4,"steps":4949906,"wall":1217.3,"hof":-92.44},{"g":60,"best":-7.19,"mean":-52.55,"species":17,"hidden":11,"depth":4,"steps":5024174,"wall":1234.5,"hof":null},{"g":61,"best":-7.33,"mean":-59.57,"species":16,"hidden":11,"depth":4,"steps":5096015,"wall":1248.9,"hof":null},{"g":62,"best":-6.93,"mean":-59.2,"species":16,"hidden":11,"depth":4,"steps":5168992,"wall":1266.3,"hof":null},{"g":63,"best":-6.84,"mean":-60.57,"species":16,"hidden":11,"depth":4,"steps":5246832,"wall":1283.9,"hof":null},{"g":64,"best":-6.51,"mean":-55.82,"species":15,"hidden":6,"depth":2,"steps":5325677,"wall":1303.0,"hof":null},{"g":65,"best":-6.96,"mean":-56.11,"species":15,"hidden":11,"depth":4,"steps":5413841,"wall":1322.8,"hof":null},{"g":66,"best":-6.94,"mean":-55.38,"species":15,"hidden":11,"depth":4,"steps":5493576,"wall":1341.5,"hof":null},{"g":67,"best":55.11,"mean":-55.25,"species":15,"hidden":8,"depth":4,"steps":5579854,"wall":1361.2,"hof":null},{"g":68,"best":13.95,"mean":-55.8,"species":15,"hidden":9,"depth":4,"steps":5666226,"wall":1384.1,"hof":null},{"g":69,"best":20.05,"mean":-57.55,"species":15,"hidden":9,"depth":4,"steps":5824218,"wall":1420.1,"hof":23.26},{"g":70,"best":35.47,"mean":-56.62,"species":15,"hidden":8,"depth":4,"steps":5912776,"wall":1445.6,"hof":null},{"g":71,"best":8.62,"mean":-53.83,"species":15,"hidden":9,"depth":4,"steps":6006001,"wall":1468.6,"hof":null},{"g":72,"best":48.91,"mean":-58.82,"species":15,"hidden":8,"depth":4,"steps":6087714,"wall":1490.5,"hof":null},{"g":73,"best":3.26,"mean":-60.59,"species":15,"hidden":9,"depth":4,"steps":6173059,"wall":1511.7,"hof":null},{"g":74,"best":21.17,"mean":-56.19,"species":15,"hidden":9,"depth":4,"steps":6255825,"wall":1533.1,"hof":null},{"g":75,"best":29.37,"mean":-59.86,"species":15,"hidden":9,"depth":4,"steps":6346695,"wall":1556.1,"hof":null},{"g":76,"best":9.74,"mean":-55.09,"species":15,"hidden":9,"depth":4,"steps":6436188,"wall":1579.0,"hof":null},{"g":77,"best":19.85,"mean":-57.53,"species":15,"hidden":9,"depth":4,"steps":6527939,"wall":1600.4,"hof":null},{"g":78,"best":19.62,"mean":-61.73,"species":15,"hidden":9,"depth":4,"steps":6621025,"wall":1624.3,"hof":null},{"g":79,"best":20.03,"mean":-59.86,"species":15,"hidden":9,"depth":4,"steps":6794264,"wall":1666.4,"hof":23.61},{"g":80,"best":20.45,"mean":-59.95,"species":14,"hidden":9,"depth":4,"steps":6878324,"wall":1685.1,"hof":null},{"g":81,"best":20.8,"mean":-58.7,"species":13,"hidden":9,"depth":4,"steps":6959569,"wall":1704.6,"hof":null},{"g":82,"best":12.54,"mean":-55.03,"species":13,"hidden":9,"depth":4,"steps":7043068,"wall":1726.0,"hof":null},{"g":83,"best":17.81,"mean":-56.13,"species":13,"hidden":9,"depth":4,"steps":7126210,"wall":1745.3,"hof":null},{"g":84,"best":19.57,"mean":-57.0,"species":12,"hidden":9,"depth":4,"steps":7209963,"wall":1766.2,"hof":null},{"g":85,"best":8.01,"mean":-58.18,"species":12,"hidden":9,"depth":4,"steps":7297880,"wall":1788.7,"hof":null},{"g":86,"best":15.68,"mean":-56.6,"species":12,"hidden":9,"depth":4,"steps":7387704,"wall":1810.4,"hof":null},{"g":87,"best":24.86,"mean":-55.76,"species":12,"hidden":9,"depth":4,"steps":7474049,"wall":1834.0,"hof":null},{"g":88,"best":25.55,"mean":-50.96,"species":12,"hidden":9,"depth":4,"steps":7565571,"wall":1876.6,"hof":null},{"g":89,"best":18.04,"mean":-49.89,"species":12,"hidden":9,"depth":4,"steps":7731034,"wall":1913.1,"hof":28.16},{"g":90,"best":20.58,"mean":-54.06,"species":12,"hidden":9,"depth":4,"steps":7827785,"wall":1936.5,"hof":null},{"g":91,"best":26.78,"mean":-51.23,"species":12,"hidden":9,"depth":4,"steps":7923472,"wall":1959.5,"hof":null},{"g":92,"best":22.74,"mean":-49.53,"species":12,"hidden":9,"depth":4,"steps":8029784,"wall":1984.9,"hof":null},{"g":93,"best":26.74,"mean":-46.08,"species":12,"hidden":9,"depth":4,"steps":8143148,"wall":2011.9,"hof":null},{"g":94,"best":17.95,"mean":-50.94,"species":11,"hidden":9,"depth":4,"steps":8253825,"wall":2040.7,"hof":null},{"g":95,"best":26.07,"mean":-51.09,"species":11,"hidden":9,"depth":4,"steps":8376859,"wall":2069.2,"hof":null},{"g":96,"best":108.94,"mean":-53.53,"species":10,"hidden":9,"depth":4,"steps":8482489,"wall":2094.0,"hof":null},{"g":97,"best":99.72,"mean":-50.36,"species":10,"hidden":9,"depth":4,"steps":8597205,"wall":2119.3,"hof":null},{"g":98,"best":117.04,"mean":-50.01,"species":10,"hidden":9,"depth":4,"steps":8714833,"wall":2148.3,"hof":null},{"g":99,"best":32.02,"mean":-55.15,"species":10,"hidden":9,"depth":4,"steps":8909868,"wall":2189.9,"hof":111.14},{"g":100,"best":111.86,"mean":-51.88,"species":10,"hidden":9,"depth":4,"steps":9022562,"wall":2220.5,"hof":null},{"g":101,"best":68.11,"mean":-53.39,"species":10,"hidden":9,"depth":4,"steps":9120407,"wall":2244.4,"hof":null},{"g":102,"best":28.14,"mean":-55.32,"species":9,"hidden":9,"depth":4,"steps":9227564,"wall":2268.1,"hof":null},{"g":103,"best":25.91,"mean":-55.05,"species":8,"hidden":9,"depth":4,"steps":9338815,"wall":2293.4,"hof":null},{"g":104,"best":23.41,"mean":-51.61,"species":8,"hidden":9,"depth":4,"steps":9444819,"wall":2317.1,"hof":null},{"g":105,"best":14.94,"mean":-54.04,"species":8,"hidden":9,"depth":4,"steps":9550112,"wall":2340.9,"hof":null},{"g":106,"best":16.71,"mean":-54.57,"species":8,"hidden":9,"depth":4,"steps":9670100,"wall":2368.4,"hof":null},{"g":107,"best":26.04,"mean":-56.22,"species":8,"hidden":9,"depth":4,"steps":9774054,"wall":2394.0,"hof":null},{"g":108,"best":18.09,"mean":-51.27,"species":7,"hidden":9,"depth":4,"steps":9888627,"wall":2421.1,"hof":null},{"g":109,"best":29.33,"mean":-48.93,"species":7,"hidden":9,"depth":4,"steps":10065725,"wall":2465.5,"hof":26.21},{"g":110,"best":18.05,"mean":-54.86,"species":7,"hidden":9,"depth":4,"steps":10179915,"wall":2492.1,"hof":null},{"g":111,"best":59.25,"mean":-49.85,"species":5,"hidden":9,"depth":4,"steps":10300514,"wall":2523.0,"hof":null},{"g":112,"best":58.66,"mean":-54.87,"species":5,"hidden":9,"depth":4,"steps":10422610,"wall":2548.6,"hof":null},{"g":113,"best":46.22,"mean":-53.94,"species":5,"hidden":9,"depth":4,"steps":10534220,"wall":2577.4,"hof":null},{"g":114,"best":46.66,"mean":-61.27,"species":5,"hidden":9,"depth":4,"steps":10636393,"wall":2600.9,"hof":null},{"g":115,"best":49.66,"mean":-56.46,"species":4,"hidden":9,"depth":4,"steps":10731293,"wall":2631.0,"hof":null},{"g":116,"best":44.12,"mean":-51.88,"species":6,"hidden":9,"depth":4,"steps":10836465,"wall":2657.0,"hof":null},{"g":117,"best":51.13,"mean":-59.96,"species":6,"hidden":9,"depth":4,"steps":10937279,"wall":2681.8,"hof":null},{"g":118,"best":51.98,"mean":-49.97,"species":6,"hidden":9,"depth":4,"steps":11060417,"wall":2714.8,"hof":null},{"g":119,"best":54.23,"mean":-48.9,"species":8,"hidden":9,"depth":4,"steps":11259140,"wall":2772.6,"hof":48.92},{"g":120,"best":81.29,"mean":-56.63,"species":10,"hidden":9,"depth":4,"steps":11393205,"wall":2816.0,"hof":null},{"g":121,"best":52.38,"mean":-48.07,"species":11,"hidden":9,"depth":4,"steps":11513655,"wall":2854.9,"hof":null},{"g":122,"best":57.03,"mean":-51.92,"species":13,"hidden":9,"depth":4,"steps":11644303,"wall":2900.2,"hof":null},{"g":123,"best":95.72,"mean":-50.71,"species":13,"hidden":9,"depth":4,"steps":11759297,"wall":2938.0,"hof":null},{"g":124,"best":39.99,"mean":-47.31,"species":13,"hidden":9,"depth":4,"steps":11880810,"wall":2982.3,"hof":null},{"g":125,"best":98.69,"mean":-50.62,"species":13,"hidden":9,"depth":4,"steps":11980382,"wall":3012.1,"hof":null},{"g":126,"best":44.35,"mean":-51.4,"species":13,"hidden":9,"depth":4,"steps":12099180,"wall":3055.7,"hof":null},{"g":127,"best":73.08,"mean":-49.63,"species":13,"hidden":9,"depth":4,"steps":12208630,"wall":3086.0,"hof":null}],"clips":[{"key":"gen0","title":"Generation 0: random network","desc":"Random weights. 24 inputs, 8 hidden, 4 outputs.","generation":0,"mean":null,"std":null,"seconds":null,"hidden_in_use":8,"depth":2,"nodes":12,"enabled_conns":224},{"key":"m_first_positive","title":"First positive score","desc":"Generation 69. First champion over 0 on 10 unseen terrains.","generation":69,"mean":23.3,"std":8.1,"seconds":null,"hidden_in_use":9,"depth":4,"nodes":13,"enabled_conns":215},{"key":"m_100","title":"Milestone 100","desc":"Generation 99. First champion over 100 on 10 unseen terrains.","generation":99,"mean":111.1,"std":7.2,"seconds":null,"hidden_in_use":9,"depth":4,"nodes":13,"enabled_conns":210}],"milestones":{"first_positive":{"generation":69,"mean":23.3,"wall_min":23.7,"env_steps":5764609},"100":{"generation":99,"mean":111.1,"wall_min":36.5,"env_steps":8845868}},"champion":{"generation":99,"mean":111.1,"std":7.2,"hidden_in_use":9,"depth":4,"nodes":13,"enabled_conns":210},"network":{"nodes":[{"id":-1,"col":0,"row":0,"n":24,"name":"hull angle","bias":null},{"id":-2,"col":0,"row":1,"n":24,"name":"hull ang. vel","bias":null},{"id":-3,"col":0,"row":2,"n":24,"name":"vel x","bias":null},{"id":-4,"col":0,"row":3,"n":24,"name":"vel y","bias":null},{"id":-5,"col":0,"row":4,"n":24,"name":"hip 1 angle","bias":null},{"id":-6,"col":0,"row":5,"n":24,"name":"hip 1 speed","bias":null},{"id":-7,"col":0,"row":6,"n":24,"name":"knee 1 angle","bias":null},{"id":-8,"col":0,"row":7,"n":24,"name":"knee 1 speed","bias":null},{"id":-9,"col":0,"row":8,"n":24,"name":"leg 1 contact","bias":null},{"id":-10,"col":0,"row":9,"n":24,"name":"hip 2 angle","bias":null},{"id":-11,"col":0,"row":10,"n":24,"name":"hip 2 speed","bias":null},{"id":-12,"col":0,"row":11,"n":24,"name":"knee 2 angle","bias":null},{"id":-13,"col":0,"row":12,"n":24,"name":"knee 2 speed","bias":null},{"id":-14,"col":0,"row":13,"n":24,"name":"leg 2 contact","bias":null},{"id":-15,"col":0,"row":14,"n":24,"name":"lidar 0","bias":null},{"id":-16,"col":0,"row":15,"n":24,"name":"lidar 1","bias":null},{"id":-17,"col":0,"row":16,"n":24,"name":"lidar 2","bias":null},{"id":-18,"col":0,"row":17,"n":24,"name":"lidar 3","bias":null},{"id":-19,"col":0,"row":18,"n":24,"name":"lidar 4","bias":null},{"id":-20,"col":0,"row":19,"n":24,"name":"lidar 5","bias":null},{"id":-21,"col":0,"row":20,"n":24,"name":"lidar 6","bias":null},{"id":-22,"col":0,"row":21,"n":24,"name":"lidar 7","bias":null},{"id":-23,"col":0,"row":22,"n":24,"name":"lidar 8","bias":null},{"id":-24,"col":0,"row":23,"n":24,"name":"lidar 9","bias":null},{"id":4,"col":1,"row":0,"n":6,"name":"hidden 4","bias":0.313},{"id":6,"col":1,"row":1,"n":6,"name":"hidden 6","bias":-0.84},{"id":7,"col":1,"row":2,"n":6,"name":"hidden 7","bias":0.064},{"id":8,"col":1,"row":3,"n":6,"name":"hidden 8","bias":-1.476},{"id":9,"col":1,"row":4,"n":6,"name":"hidden 9","bias":-0.494},{"id":10,"col":1,"row":5,"n":6,"name":"hidden 10","bias":0.355},{"id":19,"col":2,"row":0,"n":1,"name":"hidden 19","bias":-0.743},{"id":5,"col":3,"row":0,"n":2,"name":"hidden 5","bias":-1.883},{"id":11,"col":3,"row":1,"n":2,"name":"hidden 11","bias":0.241},{"id":0,"col":4,"row":0,"n":4,"name":"hip 1","bias":0.453},{"id":1,"col":4,"row":1,"n":4,"name":"knee 1","bias":-0.547},{"id":2,"col":4,"row":2,"n":4,"name":"hip 2","bias":-0.458},{"id":3,"col":4,"row":3,"n":4,"name":"knee 2","bias":-0.05}],"edges":[{"a":-1,"b":4,"w":-0.547},{"a":-1,"b":6,"w":-1.411},{"a":-1,"b":7,"w":0.056},{"a":-1,"b":11,"w":-0.912},{"a":-2,"b":4,"w":0.757},{"a":-2,"b":5,"w":-1.965},{"a":-2,"b":6,"w":-1.269},{"a":-2,"b":7,"w":0.087},{"a":-2,"b":8,"w":0.016},{"a":-2,"b":10,"w":4.085},{"a":-2,"b":11,"w":2.381},{"a":-3,"b":4,"w":3.292},{"a":-3,"b":5,"w":0.599},{"a":-3,"b":6,"w":0.766},{"a":-3,"b":7,"w":0.868},{"a":-3,"b":8,"w":-0.33},{"a":-3,"b":9,"w":1.341},{"a":-3,"b":10,"w":-1.623},{"a":-3,"b":11,"w":-0.655},{"a":-4,"b":4,"w":0.29},{"a":-4,"b":6,"w":0.675},{"a":-4,"b":8,"w":0.038},{"a":-4,"b":9,"w":2.191},{"a":-4,"b":10,"w":1.356},{"a":-4,"b":11,"w":0.853},{"a":-5,"b":4,"w":2.328},{"a":-5,"b":5,"w":3.482},{"a":-5,"b":6,"w":2.831},{"a":-5,"b":7,"w":0.923},{"a":-5,"b":8,"w":-0.266},{"a":-5,"b":9,"w":-1.761},{"a":-5,"b":10,"w":-0.85},{"a":-5,"b":11,"w":0.984},{"a":-6,"b":4,"w":1.092},{"a":-6,"b":6,"w":4.778},{"a":-6,"b":7,"w":1.063},{"a":-6,"b":9,"w":-0.912},{"a":-6,"b":10,"w":0.063},{"a":-6,"b":11,"w":-0.213},{"a":-7,"b":4,"w":-0.032},{"a":-7,"b":5,"w":-2.702},{"a":-7,"b":6,"w":-0.587},{"a":-7,"b":7,"w":0.299},{"a":-7,"b":8,"w":-0.579},{"a":-7,"b":9,"w":-0.963},{"a":-7,"b":10,"w":1.164},{"a":-7,"b":11,"w":-0.009},{"a":-8,"b":4,"w":-0.189},{"a":-8,"b":5,"w":-0.091},{"a":-8,"b":6,"w":-0.46},{"a":-8,"b":7,"w":0.237},{"a":-8,"b":8,"w":-1.166},{"a":-8,"b":9,"w":1.572},{"a":-8,"b":10,"w":-1.118},{"a":-8,"b":11,"w":-1.893},{"a":-9,"b":4,"w":0.178},{"a":-9,"b":5,"w":-1.454},{"a":-9,"b":6,"w":2.293},{"a":-9,"b":7,"w":1.312},{"a":-9,"b":8,"w":-1.814},{"a":-9,"b":10,"w":-2.004},{"a":-9,"b":11,"w":0.074},{"a":-10,"b":4,"w":2.067},{"a":-10,"b":5,"w":-0.042},{"a":-10,"b":6,"w":-0.089},{"a":-10,"b":7,"w":-0.519},{"a":-10,"b":8,"w":1.114},{"a":-10,"b":9,"w":-2.007},{"a":-10,"b":10,"w":-2.799},{"a":-10,"b":11,"w":0.725},{"a":-11,"b":4,"w":-1.782},{"a":-11,"b":5,"w":2.113},{"a":-11,"b":6,"w":0.111},{"a":-11,"b":7,"w":-0.013},{"a":-11,"b":8,"w":2.802},{"a":-11,"b":9,"w":0.223},{"a":-11,"b":10,"w":-3.218},{"a":-11,"b":11,"w":-0.136},{"a":-12,"b":4,"w":-0.124},{"a":-12,"b":5,"w":-3.912},{"a":-12,"b":7,"w":-0.787},{"a":-12,"b":8,"w":0.646},{"a":-12,"b":9,"w":1.516},{"a":-12,"b":10,"w":0.017},{"a":-12,"b":11,"w":-0.37},{"a":-13,"b":4,"w":4.674},{"a":-13,"b":5,"w":1.317},{"a":-13,"b":6,"w":0.525},{"a":-13,"b":7,"w":1.028},{"a":-13,"b":8,"w":-0.727},{"a":-13,"b":9,"w":-1.548},{"a":-13,"b":10,"w":-0.56},{"a":-14,"b":4,"w":2.413},{"a":-14,"b":5,"w":0.518},{"a":-14,"b":6,"w":-0.236},{"a":-14,"b":7,"w":-1.858},{"a":-14,"b":8,"w":-1.773},{"a":-14,"b":10,"w":-1.128},{"a":-14,"b":11,"w":0.18},{"a":-15,"b":4,"w":-1.456},{"a":-15,"b":5,"w":-0.031},{"a":-15,"b":6,"w":-0.242},{"a":-15,"b":7,"w":2.083},{"a":-15,"b":8,"w":1.165},{"a":-15,"b":9,"w":0.822},{"a":-15,"b":10,"w":0.732},{"a":-15,"b":11,"w":0.198},{"a":-16,"b":4,"w":-0.028},{"a":-16,"b":5,"w":0.902},{"a":-16,"b":6,"w":0.062},{"a":-16,"b":7,"w":-0.448},{"a":-16,"b":8,"w":2.088},{"a":-16,"b":9,"w":-1.44},{"a":-16,"b":10,"w":-1.288},{"a":-16,"b":11,"w":0.356},{"a":-17,"b":4,"w":1.862},{"a":-17,"b":5,"w":0.352},{"a":-17,"b":6,"w":1.268},{"a":-17,"b":7,"w":-1.489},{"a":-17,"b":8,"w":0.703},{"a":-17,"b":9,"w":0.907},{"a":-17,"b":11,"w":3.684},{"a":-18,"b":4,"w":-0.871},{"a":-18,"b":6,"w":3.084},{"a":-18,"b":7,"w":-0.633},{"a":-18,"b":8,"w":-1.502},{"a":-18,"b":9,"w":-0.947},{"a":-18,"b":10,"w":-0.866},{"a":-18,"b":11,"w":0.462},{"a":-19,"b":4,"w":3.015},{"a":-19,"b":5,"w":-0.78},{"a":-19,"b":6,"w":-0.764},{"a":-19,"b":7,"w":2.374},{"a":-19,"b":8,"w":-2.146},{"a":-19,"b":9,"w":2.136},{"a":-19,"b":10,"w":-0.269},{"a":-19,"b":11,"w":0.051},{"a":-20,"b":4,"w":0.499},{"a":-20,"b":5,"w":0.648},{"a":-20,"b":6,"w":2.006},{"a":-20,"b":7,"w":-0.273},{"a":-20,"b":8,"w":-2.41},{"a":-20,"b":9,"w":0.55},{"a":-20,"b":10,"w":-1.857},{"a":-20,"b":11,"w":-1.397},{"a":-21,"b":4,"w":1.116},{"a":-21,"b":5,"w":2.604},{"a":-21,"b":6,"w":0.17},{"a":-21,"b":7,"w":0.627},{"a":-21,"b":8,"w":2.588},{"a":-21,"b":9,"w":-3.165},{"a":-21,"b":10,"w":-0.264},{"a":-21,"b":11,"w":0.705},{"a":-22,"b":4,"w":1.908},{"a":-22,"b":5,"w":-1.201},{"a":-22,"b":6,"w":0.564},{"a":-22,"b":7,"w":-0.064},{"a":-22,"b":8,"w":0.38},{"a":-22,"b":9,"w":-1.514},{"a":-22,"b":10,"w":0.947},{"a":-22,"b":11,"w":0.789},{"a":-23,"b":4,"w":1.483},{"a":-23,"b":5,"w":1.107},{"a":-23,"b":6,"w":-0.536},{"a":-23,"b":7,"w":-0.661},{"a":-23,"b":8,"w":0.96},{"a":-23,"b":9,"w":-0.15},{"a":-23,"b":10,"w":-0.126},{"a":-23,"b":11,"w":0.678},{"a":-24,"b":4,"w":1.284},{"a":-24,"b":5,"w":1.32},{"a":-24,"b":6,"w":0.146},{"a":-24,"b":7,"w":-3.051},{"a":-24,"b":8,"w":-1.651},{"a":-24,"b":9,"w":-0.626},{"a":-24,"b":10,"w":-1.067},{"a":-24,"b":11,"w":-1.692},{"a":4,"b":0,"w":1.844},{"a":4,"b":1,"w":2.039},{"a":4,"b":2,"w":-1.874},{"a":4,"b":3,"w":-0.138},{"a":5,"b":0,"w":3.032},{"a":5,"b":1,"w":1.685},{"a":5,"b":2,"w":-4.154},{"a":5,"b":3,"w":1.551},{"a":6,"b":0,"w":-1.631},{"a":6,"b":1,"w":1.074},{"a":6,"b":2,"w":-1.537},{"a":6,"b":3,"w":0.878},{"a":7,"b":0,"w":0.113},{"a":7,"b":3,"w":1.995},{"a":8,"b":0,"w":-0.111},{"a":8,"b":1,"w":1.087},{"a":8,"b":2,"w":1.293},{"a":8,"b":3,"w":-0.937},{"a":9,"b":0,"w":0.616},{"a":9,"b":2,"w":2.608},{"a":9,"b":3,"w":-1.032},{"a":10,"b":0,"w":-0.064},{"a":10,"b":1,"w":0.961},{"a":10,"b":2,"w":1.236},{"a":10,"b":3,"w":-1.861},{"a":11,"b":0,"w":-0.199},{"a":11,"b":1,"w":-1.061},{"a":11,"b":2,"w":2.59},{"a":11,"b":3,"w":-2.072},{"a":19,"b":11,"w":0.316},{"a":-23,"b":3,"w":-0.992},{"a":19,"b":5,"w":0.636},{"a":8,"b":19,"w":-0.367}],"cols":5},"params":{"pop_size":200,"num_hidden":8,"initial_connection":"full_nodirect","feed_forward":true,"conn_add_prob":0.3,"node_add_prob":0.1,"node_delete_prob":0.05,"weight_mutate_rate":0.8,"weight_mutate_power":0.5,"compatibility_threshold":3.0,"max_stagnation":20,"elitism":2,"survival_threshold":0.2,"k_seeds":3,"early_stop":true,"workers":4}};
+
+// ---------- theme toggle
+(() => {
+  const root = document.documentElement, btn = document.getElementById("theme");
+  try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  btn.onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+  };
+})();
+
+const fmt = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + v.toFixed(d);
+const svgEl = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+
+// ---------- hero, stats, clips
+(() => {
+  const last = DATA.clips[DATA.clips.length - 1];
+  const hv = document.getElementById("heroVideo");
+  hv.src = `clips/${last.key}.mp4`; hv.poster = `clips/${last.key}.jpg`;
+  document.getElementById("heroNote").textContent =
+    `${last.title}, generation ${last.generation}: average ${fmt(last.mean)} ± ${last.std} on 10 unseen terrains. ` +
+    `${last.hidden_in_use} hidden nodes in ${last.depth - 1} hidden layer${last.depth > 2 ? "s" : ""}.`;
+  const s = DATA.stats, lastRow = s[s.length - 1];
+  const tiles = [
+    [fmt(DATA.champion.mean), "champion average reward (10 unseen terrains)", "var(--s1)"],
+    [String(lastRow.g + 1), "generations so far"],
+    [String(DATA.champion.hidden_in_use), `hidden nodes in use (depth ${DATA.champion.depth})`],
+    [`${(lastRow.wall / 3600).toFixed(1)} h`, `training time · ${(lastRow.steps / 1e6).toFixed(1)} M env steps`],
+  ];
+  document.getElementById("stats").innerHTML = tiles.map(([b, t, c]) =>
+    `<div class="stat"><b${c ? ` style="color:${c}"` : ""}>${b}</b><span>${t}</span></div>`).join("");
+  document.getElementById("clipGrid").innerHTML = DATA.clips.map(c => `
+    <div class="clip">
+      <video src="clips/${c.key}.mp4" poster="clips/${c.key}.jpg" autoplay muted loop playsinline preload="metadata"></video>
+      <div class="body"><h3>${c.title}</h3><p>${c.desc}</p>
+        <div class="chips">
+          ${c.mean != null ? `<span class="chip">avg <b>${fmt(c.mean)}</b> ± ${c.std}</span>` : ""}
+          ${c.reward_clip != null ? `<span class="chip">this run <b>${fmt(c.reward_clip)}</b> (terrain ${c.terrain}/10)</span>` : ""}
+          <span class="chip"><b>${c.hidden_in_use}</b> hidden · depth ${c.depth}</span>
+          <span class="chip"><b>${c.enabled_conns}</b> connections</span>
+        </div></div>
+    </div>`).join("");
+  // Pause clips that are off screen.
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()));
+  document.querySelectorAll("video").forEach(v => io.observe(v));
+  document.getElementById("foot").innerHTML =
+    `Run <code>${DATA.run}</code>, page built ${DATA.built}. Gymnasium BipedalWalker-v3, neat-python 0.92. ` +
+    `Part of a series comparing PPO, TD3 and NEAT on the same laptop.`;
+})();
+
+// ---------- training curve
+(() => {
+  const rows = DATA.stats;
+  let champ = null;
+  const champRows = rows.map(r => { if (r.hof != null && (champ == null || r.hof > champ)) champ = r.hof; return champ; });
+  const series = [
+    { key: "champ", name: "Champion (10 unseen terrains)", color: "var(--s1)", width: 2.5, vals: champRows, step: true },
+    { key: "best", name: "Best of generation (3 terrains)", color: "var(--s2)", width: 1.5, vals: rows.map(r => r.best) },
+    { key: "mean", name: "Population mean", color: "var(--s3)", width: 2, vals: rows.map(r => r.mean) },
+  ];
+  document.getElementById("legend").innerHTML = series.map(s => `<span><i style="background:${s.color}"></i>${s.name}</span>`).join("");
+
+  const W = 960, H = 380, m = { l: 48, r: 92, t: 14, b: 34 };
+  const gMax = rows[rows.length - 1].g;
+  const all = series.flatMap(s => s.vals).filter(v => v != null);
+  const yMin = Math.floor(Math.min(...all) / 50) * 50, yMax = Math.ceil(Math.max(...all, 0) / 50) * 50;
+  const x = g => m.l + (g / Math.max(1, gMax)) * (W - m.l - m.r);
+  const y = v => m.t + (1 - (v - yMin) / (yMax - yMin)) * (H - m.t - m.b);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Training curve" }, document.getElementById("chart"));
+  const ax = svgEl("g", { class: "axis" }, svg);
+  for (let v = yMin; v <= yMax; v += 50) {
+    svgEl("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? "var(--muted)" : "var(--grid)", "stroke-width": 1, "stroke-dasharray": v === 0 ? "3 3" : "" }, ax);
+    svgEl("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, ax).textContent = v;
+  }
+  const xStep = gMax > 150 ? 50 : gMax > 60 ? 20 : 10;
+  for (let g = 0; g <= gMax; g += xStep) svgEl("text", { x: x(g), y: H - 12, "text-anchor": "middle" }, ax).textContent = g;
+  svgEl("text", { x: (m.l + W - m.r) / 2, y: H, "text-anchor": "middle" }, ax).textContent = "generation";
+  // Milestone markers.
+  for (const [name, mm] of Object.entries(DATA.milestones)) {
+    svgEl("line", { x1: x(mm.generation), x2: x(mm.generation), y1: m.t, y2: H - m.b, stroke: "var(--muted)", "stroke-dasharray": "2 4", "stroke-width": 1 }, ax);
+    svgEl("text", { x: x(mm.generation) + 4, y: m.t + 10, "font-size": 11 }, ax).textContent = name === "first_positive" ? "first > 0" : `≥ ${name}`;
+  }
+  for (const s of [...series].reverse()) {
+    let d = "", prev = null;
+    rows.forEach((r, i) => {
+      const v = s.vals[i]; if (v == null) { prev = null; return; }
+      if (prev == null) d += `M${x(r.g)},${y(v)}`;
+      else d += s.step ? `H${x(r.g)}V${y(v)}` : `L${x(r.g)},${y(v)}`;
+      prev = v;
+    });
+    svgEl("path", { d, fill: "none", stroke: s.color, "stroke-width": s.width, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  }
+  // Direct labels at the right end (text in ink, a colored dash for identity).
+  const ends = series.map(s => ({ s, v: s.vals[s.vals.length - 1] })).filter(e => e.v != null).sort((a, b) => b.v - a.v);
+  let lastY = -1e9;
+  for (const e of ends) {
+    let ly = Math.max(y(e.v), lastY + 16); lastY = ly;
+    svgEl("line", { x1: W - m.r + 6, x2: W - m.r + 16, y1: ly, y2: ly, stroke: e.s.color, "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    svgEl("text", { x: W - m.r + 20, y: ly + 4, "font-size": 12, fill: "var(--text)" }, svg).textContent = fmt(e.v, 0);
+  }
+  // Hover: crosshair + tooltip.
+  const cross = svgEl("line", { y1: m.t, y2: H - m.b, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
+  const dots = series.map(s => svgEl("circle", { r: 4.5, fill: s.color, stroke: "var(--surface)", "stroke-width": 2, opacity: 0 }, svg));
+  const hit = svgEl("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  const tip = document.getElementById("tip"), panel = tip.parentElement;
+  const move = ev => {
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const g = Math.round((p.x - m.l) / (W - m.l - m.r) * gMax);
+    const i = Math.max(0, Math.min(rows.length - 1, rows.findIndex(r => r.g >= g)));
+    const r = rows[i];
+    cross.setAttribute("x1", x(r.g)); cross.setAttribute("x2", x(r.g)); cross.setAttribute("opacity", .6);
+    series.forEach((s, k) => { const v = s.vals[i]; dots[k].setAttribute("opacity", v == null ? 0 : 1); if (v != null) { dots[k].setAttribute("cx", x(r.g)); dots[k].setAttribute("cy", y(v)); } });
+    tip.innerHTML = `<b>Generation ${r.g}</b>` + series.map(s => `<div class="row"><span><i style="background:${s.color}"></i>${s.name.split(" (")[0]}</span><b>${fmt(s.vals[i])}</b></div>`).join("") +
+      `<div class="row"><span>Species</span><b>${r.species}</b></div><div class="row"><span>Best net</span><b>${r.hidden} hidden · depth ${r.depth}</b></div>`;
+    const pr = panel.getBoundingClientRect();
+    let left = ev.clientX - pr.left + 14; if (left + 200 > pr.width) left = ev.clientX - pr.left - 214;
+    tip.style.left = left + "px"; tip.style.top = Math.max(8, ev.clientY - pr.top - 40) + "px"; tip.style.opacity = 1;
+  };
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerleave", () => { tip.style.opacity = 0; cross.setAttribute("opacity", 0); dots.forEach(d => d.setAttribute("opacity", 0)); });
+  document.getElementById("table").innerHTML =
+    "<tr><th>Gen</th><th>Champion</th><th>Best</th><th>Mean</th><th>Species</th><th>Hidden</th><th>Depth</th></tr>" +
+    rows.map((r, i) => `<tr><td>${r.g}</td><td>${fmt(champRows[i])}</td><td>${fmt(r.best)}</td><td>${fmt(r.mean)}</td><td>${r.species}</td><td>${r.hidden}</td><td>${r.depth}</td></tr>`).join("");
+})();
+
+// ---------- network
+(() => {
+  const net = DATA.network, c = DATA.champion;
+  const hiddenCols = net.cols - 2;
+  document.getElementById("netIntro").textContent =
+    `The champion from generation ${c.generation}: 24 inputs, ${c.hidden_in_use} hidden nodes in ` +
+    `${hiddenCols} hidden layer${hiddenCols > 1 ? "s" : ""}, 4 motor outputs and ${c.enabled_conns} enabled connections. ` +
+    `NEAT started from 8 hidden nodes in one layer and grew the rest. Hover a node to see what it is.`;
+  const W = 960, rowH = 17, H = 24 * rowH + 40, m = { l: 110, r: 70 };
+  const colX = ci => m.l + ci * (W - m.l - m.r) / (net.cols - 1);
+  const pos = {};
+  for (const n of net.nodes) pos[n.id] = { x: colX(n.col), y: 20 + (n.row + .5) * (H - 40) / n.n, n };
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Champion network" }, document.getElementById("net"));
+  const maxW = Math.max(...net.edges.map(e => Math.abs(e.w)), 1);
+  const edgeEls = [];
+  for (const e of net.edges) {
+    const a = pos[e.a], b = pos[e.b]; if (!a || !b) continue;
+    const mx = (a.x + b.x) / 2;
+    edgeEls.push([e, svgEl("path", { d: `M${a.x},${a.y}C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`, fill: "none",
+      stroke: e.w >= 0 ? "var(--pos)" : "var(--neg)", "stroke-width": .4 + 2.6 * Math.abs(e.w) / maxW, opacity: .45 }, svg)]);
+  }
+  const tip = document.getElementById("netTip"), panel = tip.parentElement;
+  for (const n of net.nodes) {
+    const p = pos[n.id], isIn = n.col === 0, isOut = n.col === net.cols - 1;
+    const circ = svgEl("circle", { cx: p.x, cy: p.y, r: isIn ? 5 : 8, fill: isIn ? "var(--surface-2)" : isOut ? "var(--accent)" : "var(--surface)",
+      stroke: isIn ? "var(--muted)" : "var(--text)", "stroke-width": 1.5 }, svg);
+    if (isIn) svgEl("text", { x: p.x - 10, y: p.y + 4, "text-anchor": "end", "font-size": 11, fill: "var(--muted)" }, svg).textContent = n.name;
+    if (isOut) svgEl("text", { x: p.x + 14, y: p.y + 4, "font-size": 12, fill: "var(--text)" }, svg).textContent = n.name;
+    const hit = svgEl("circle", { cx: p.x, cy: p.y, r: 12, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", ev => {
+      const ins = net.edges.filter(e => e.b === n.id).length, outs = net.edges.filter(e => e.a === n.id).length;
+      tip.innerHTML = `<b>${n.name}</b><div class="row"><span>in / out links</span><b>${ins} / ${outs}</b></div>` +
+        (n.bias != null ? `<div class="row"><span>bias</span><b>${n.bias}</b></div>` : "");
+      edgeEls.forEach(([e, el]) => el.setAttribute("opacity", e.a === n.id || e.b === n.id ? .95 : .06));
+      const pr = panel.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+      tip.style.left = Math.min(pr.width - 190, (p.x / W) * sr.width + 20) + "px";
+      tip.style.top = ((p.y / H) * sr.height) + "px"; tip.style.opacity = 1;
+    });
+    hit.addEventListener("pointerleave", () => { tip.style.opacity = 0; edgeEls.forEach(([, el]) => el.setAttribute("opacity", .45)); });
+  }
+  for (let ci = 1; ci < net.cols - 1; ci++)
+    svgEl("text", { x: colX(ci), y: H - 2, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, svg).textContent = `hidden ${ci}`;
+})();
+</script>
+</body>
+</html>
