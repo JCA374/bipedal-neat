@@ -106,7 +106,7 @@ Then, around generation 69, a network found a slow shuffle that moved forward wi
 
 ## curve.3
 
-The champion passed 100 at generation 99. Around generation 430 the scores levelled off, so each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200.
+The champion passed 100 at generation 99. The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200.
 
 ## stages
 
@@ -122,7 +122,7 @@ While the scores rose, the networks grew. The violet line counts hidden nodes in
 
 ## growth.2
 
-The champion has 6 hidden nodes in 5 hidden layers, and 37 connections. It started as eight nodes in one layer. Everything else was added by mutation, and kept because it helped.
+The champion has 6 hidden nodes in 5 hidden layers, and only 37 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain.
 
 ## species
 
@@ -134,7 +134,7 @@ In the first hour, that tuning ran away. neat python never merges species, so th
 
 ## results
 
-The real test is one hundred terrains the champion has never seen. Its average is 179. Most runs land in a tight group.
+The real test is one hundred terrains the champion has never seen. Its average is 179. Half of its runs score between 191 and 220.
 
 ## results.2
 

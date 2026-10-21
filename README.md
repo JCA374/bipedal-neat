@@ -1,6 +1,8 @@
 # bipedal-neat
 
-**Live page with progress clips:** https://jca374.github.io/bipedal-neat/
+**Live page with the narrated explainer, chapter videos and progress clips:** https://jca374.github.io/bipedal-neat/
+
+**Result (run `baseline`, 674 generations, 8.2 h on a 4-core laptop):** the champion averages **+179 ± 75 over 100 unseen terrains**. Its median is 206, the middle half scores 191–220, and it falls in 17 of 100. It has 6 hidden nodes in 5 hidden layers and 37 connections. For comparison, PPO reached 272 and TD3 reached 308–319 on the same laptop. Details are in `TRAINING_LOG.md`.
 
 NEAT (neuroevolution, gradient-free) on BipedalWalker-v3. It is a baseline to compare with the PPO (`../bipedal-claude-ppo`) and TD3 (`../bipedal-claude`) projects. See `PLAN.md` for the design and the lessons carried over from those projects.
 
@@ -33,6 +35,13 @@ python evaluate.py --run runs/baseline --episodes 100       # mean/std + hidden_
 python play.py --run runs/baseline                          # window
 python record_video.py --run runs/baseline                  # 600x400, 50 fps, 1600 steps, seed 42
 ```
+
+## Overnight queue
+```bash
+DEADLINE=05:00 TARGET=300 nohup ./overnight.sh > overnight.log 2>&1 &
+```
+The queue trains in 1 h chunks (4 or 6 workers depending on what else is running), evaluates on 100 terrains, writes the narration from the final numbers (`video_tools/narration.py`), voices it with the voice-text pipeline (Kokoro + Whisper check), renders `docs/video/` (explainer + 5 chapters), rebuilds the site and pushes.
+To change settings for the next chunk without touching the running script, use `runs/<name>/overrides.json` (`{"k": 5, "pop_size": 300, "reason": "..."}`).
 
 ## Site
 ```bash

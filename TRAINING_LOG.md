@@ -18,3 +18,12 @@
 - No config changes, so the curve stays one continuous run.
 - **Plateau (gen 238 → 333):** champion stuck at ~158 (157.7 → 158.2). The 100-episode check shows a careful, slow walker with almost no falls.
 - **Change (PLAN phase 4, step 1), from the 23:30 chunk:** K 3 → 5 seeds per genome and pop 200 → 300, via `runs/baseline/overrides.json`, which `train.py` reads on resume (so the running `overnight.sh` didn't need editing). Changes are recorded in `run_config.json` → `history`.
+- K=5 / pop 300 from gen 430: champion 163 → 168 (gen ~470) → **199.96** (gen ~520) on 10 held-out terrains, then flat until the 05:00 deadline (gen 674). Milestone 200 was missed by 0.04.
+- **Final champion, 100 unseen terrains:** mean **+179.0 ± 75.1**, median 206, middle half 191–220, falls 17/100, 0 runs ≥ 300. 6 hidden nodes in 5 hidden layers, 37 connections. Evolution pruned the 24→8→4 start (224 connections) into a deep, sparse chain.
+- Milestones on 100 terrains: first_positive +19.9 ± 8.3 (0 falls); milestone 100 +103.3 ± 46.8 (4 falls). The gen-149 champion: +140.1 ± 12 (0 falls).
+- Trade-off: the later champions walk faster and score more, but fall more. Falls are now what limits the score.
+
+## Next ideas (not run yet)
+1. Action repeat 2 (PLAN phase 4, step 2): more forward motion per decision.
+2. Fitness shaping against falls, e.g. no early-stop credit for standing, or a hull-stability bonus. Report raw reward only.
+3. More time: the champion improved in bursts (gen 99, 238, 520), so a longer run may break the plateau again.

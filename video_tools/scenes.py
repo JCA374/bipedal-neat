@@ -466,10 +466,13 @@ def scene_growth(ctx, name="growth"):
         else:
             draw_net(d, ctx.champ, ctx.config, (150, 140, 780, 650), a=fade(t, b.at(1)))
             tp = ctx.topo
-            paragraph(d, (900, 180), f"The champion has {tp['hidden_in_use']} hidden nodes in {tp['depth'] - 1} "
-                      f"hidden layers and {tp['enabled_conns']} connections. It started as 8 nodes in one layer; "
-                      "everything else was added by mutation and kept because it helped.", 26, 20, FG,
-                      fade(t, b.at(1) + 0.5))
+            grew = tp["hidden_in_use"] >= 8 and tp["enabled_conns"] >= 179
+            msg = (f"The champion has {tp['hidden_in_use']} hidden nodes in {tp['depth'] - 1} hidden layers and "
+                   f"{tp['enabled_conns']} connections. " +
+                   ("It started as 8 nodes in one layer; everything else was added by mutation and kept because it helped."
+                    if grew else "It started with 8 hidden nodes in one layer and 224 connections. Evolution "
+                    "removed most of them and stacked the rest into a deeper chain."))
+            paragraph(d, (900, 180), msg, 26, 20, FG, fade(t, b.at(1) + 0.5))
         return img
     return Scene(name, render, [8.0, 9.0])
 
@@ -562,7 +565,7 @@ def scene_laptop(ctx, name="laptop"):
             text(d, (x + 24, 250), big, 44, AMBER, a, bold=True)
             text(d, (x + 24, 320), small, 18, FG, a)
         paragraph(d, (80, 450), "Every network is evaluated on its own, so NEAT spreads across CPU cores with no "
-                  "GPU and almost no memory. For much of this run it shared the laptop with another training job.",
+                  "GPU and almost no memory. For its first two hours it shared the laptop with another training job.",
                   90, 22, FG, fade(t, 2.5))
         return img
     return Scene(name, render, [11.0])

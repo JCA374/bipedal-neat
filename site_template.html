@@ -217,12 +217,13 @@
           of the simulation time, but it also makes standing still a tempting local optimum.</li>
         <li><b>Hall of fame.</b> Every 10 generations the top 5 are re-run on 10 unseen terrains with full
           episodes. Only that average picks the champion and the milestones.</li>
-        <li><b>Hardware.</b> Intel i5-8250U (4 cores / 8 threads), no GPU, 4 worker processes at ~50 MB each,
-          sharing the CPU with another training run.</li>
+        <li><b>Hardware.</b> Intel i5-8250U (4 cores / 8 threads), no GPU, 4 to 6 worker processes at ~50 MB each.
+          For the first two hours it shared the CPU with another training run; overnight it had the laptop to itself.</li>
       </ul>
     </div>
   </div>
   <pre id="cmds">python train.py --name baseline --hours 2 --workers 4
+python train.py --name baseline --resume --hours 1 --workers 6   # overnight.sh repeats this until 05:00
 python evaluate.py --run runs/baseline --episodes 100
 python record_video.py --run runs/baseline</pre>
 </div></section>

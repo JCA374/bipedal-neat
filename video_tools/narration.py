@@ -98,7 +98,7 @@ def build(ctx):
         s["curve.2"] = "Slowly, some networks learned to move forward without falling."
     plateau = ""
     if change:
-        plateau = (f" Around generation {change['generation']} the scores levelled off, so each network got "
+        plateau = (f" The scores had levelled off, so from generation {change['generation']} each network got "
                    f"{change['k_seeds']} terrains instead of three, and the population grew to {change['pop_size']}.")
     passed = f"The champion passed {top_m} at generation {ms[top_m]['generation']}." if top_m else ""
     final = (f"After {ctx.G} generations, its average on ten unseen terrains is {r(ctx.champ_meta['mean'])}.")
@@ -108,17 +108,26 @@ def build(ctx):
     s["stages.2"] = "And this is the final champion."
     s["growth"] = ("While the scores rose, the networks grew. The violet line counts hidden nodes in use, "
                    "and the amber line counts layers from input to output.")
-    s["growth.2"] = (f"The champion has {tp['hidden_in_use']} hidden nodes in {layers_s}, "
-                     f"and {tp['enabled_conns']} connections. It started as eight nodes in one layer. "
-                     "Everything else was added by mutation, and kept because it helped.")
+    start_conns = 24 * 8 + 8 * 4
+    if tp["hidden_in_use"] >= 8 and tp["enabled_conns"] >= start_conns * 0.8:
+        s["growth.2"] = (f"The champion has {tp['hidden_in_use']} hidden nodes in {layers_s}, "
+                         f"and {tp['enabled_conns']} connections. It started as eight nodes in one layer. "
+                         "Everything else was added by mutation, and kept because it helped.")
+    else:
+        s["growth.2"] = (f"The champion has {tp['hidden_in_use']} hidden nodes in {layers_s}, and only "
+                         f"{tp['enabled_conns']} connections. It started with eight hidden nodes in one layer and "
+                         f"{start_conns} connections. Evolution threw most of them away, and stacked what was "
+                         "left into a deeper chain.")
     s["species"] = ("This is the number of species. A setting called the compatibility threshold decides how "
                     "different two networks must be to count as separate species, and the code tunes it to aim "
                     "for about ten.")
     s["species.2"] = ("In the first hour, that tuning ran away. neat python never merges species, so the count "
                       "barely fell, and the threshold kept climbing, to thirty eight. It is now kept within limits, "
                       "and the run continued from its checkpoint.")
+    import numpy as _np
+    q25, q50, q75 = (r(v) for v in _np.percentile(ev["rewards"], [25, 50, 75]))
     s["results"] = (f"The real test is one hundred terrains the champion has never seen. "
-                    f"Its average is {mean}. Most runs land in a tight group.")
+                    f"Its average is {mean}. Half of its runs score between {q25} and {q75}.")
     if falls >= 4:
         s["results.2"] = (f"But it falls in {falls} of the one hundred, and each fall costs a lot. That is what pulls the "
                           "average down, and it is the main thing left to fix.")

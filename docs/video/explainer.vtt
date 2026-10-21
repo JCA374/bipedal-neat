@@ -189,86 +189,86 @@ Then, around generation 69, a network found a slow shuffle that moved forward wi
 00:04:39.811 --> 00:04:44.402
 Its score jumped above zero, and the population followed.
 
-00:04:45.002 --> 00:04:48.797
+00:04:45.002 --> 00:04:48.748
 The champion passed 100 at generation 99.
 
-00:04:48.797 --> 00:04:59.253
-Around generation 430 the scores levelled off, so each network got 5 terrains instead of three, and the population grew to 300.
+00:04:48.748 --> 00:04:59.222
+The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300.
 
-00:04:59.253 --> 00:05:05.207
+00:04:59.222 --> 00:05:05.103
 After 674 generations, its average on ten unseen terrains is 200.
 
-00:05:05.807 --> 00:05:12.645
+00:05:05.703 --> 00:05:12.541
 Here are the champions side by side, each on a typical terrain: the middle one of its ten test terrains.
 
-00:05:12.645 --> 00:05:16.608
+00:05:12.541 --> 00:05:16.504
 From a random network, to a shuffle, to a real walk.
 
-00:05:17.208 --> 00:05:20.538
+00:05:17.104 --> 00:05:20.434
 And this is the final champion.
 
-00:05:25.208 --> 00:05:28.164
+00:05:25.104 --> 00:05:28.060
 While the scores rose, the networks grew.
 
-00:05:28.164 --> 00:05:34.860
+00:05:28.060 --> 00:05:34.756
 The violet line counts hidden nodes in use, and the amber line counts layers from input to output.
 
-00:05:35.460 --> 00:05:40.661
-The champion has 6 hidden nodes in 5 hidden layers, and 37 connections.
+00:05:35.356 --> 00:05:41.031
+The champion has 6 hidden nodes in 5 hidden layers, and only 37 connections.
 
-00:05:40.661 --> 00:05:43.755
-It started as eight nodes in one layer.
+00:05:41.031 --> 00:05:46.166
+It started with eight hidden nodes in one layer and 224 connections.
 
-00:05:43.755 --> 00:05:48.926
-Everything else was added by mutation, and kept because it helped.
+00:05:46.166 --> 00:05:52.479
+Evolution threw most of them away, and stacked what was left into a deeper chain.
 
-00:05:49.526 --> 00:05:51.770
+00:05:53.079 --> 00:05:55.323
 This is the number of species.
 
-00:05:51.770 --> 00:06:02.051
+00:05:55.323 --> 00:06:05.604
 A setting called the compatibility threshold decides how different two networks must be to count as separate species, and the code tunes it to aim for about ten.
 
-00:06:02.651 --> 00:06:12.276
+00:06:06.204 --> 00:06:15.829
 In the first hour, that tuning ran away. neat python never merges species, so the count barely fell, and the threshold kept climbing, to thirty eight.
 
-00:06:12.276 --> 00:06:17.449
+00:06:15.829 --> 00:06:21.002
 It is now kept within limits, and the run continued from its checkpoint.
 
-00:06:18.049 --> 00:06:23.300
+00:06:21.602 --> 00:06:27.655
 The real test is one hundred terrains the champion has never seen.
 
-00:06:23.300 --> 00:06:25.216
+00:06:27.655 --> 00:06:29.864
 Its average is 179.
 
-00:06:25.216 --> 00:06:28.354
-Most runs land in a tight group.
+00:06:29.864 --> 00:06:34.336
+Half of its runs score between 191 and 220.
 
-00:06:28.954 --> 00:06:33.604
+00:06:34.936 --> 00:06:39.586
 But it falls in 17 of the one hundred, and each fall costs a lot.
 
-00:06:33.604 --> 00:06:39.128
+00:06:39.586 --> 00:06:45.110
 That is what pulls the average down, and it is the main thing left to fix.
 
-00:06:39.728 --> 00:06:50.229
+00:06:45.710 --> 00:06:56.211
 For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
 
-00:06:50.229 --> 00:06:55.675
+00:06:56.211 --> 00:07:01.657
 NEAT is 93 points behind PPO, without computing a single gradient.
 
-00:06:56.275 --> 00:07:02.218
+00:07:02.257 --> 00:07:08.200
 All of this ran on a four core laptop with no graphics card, in 8 hours of training.
 
-00:07:02.218 --> 00:07:08.461
+00:07:08.200 --> 00:07:14.443
 Every network is evaluated on its own, so evolution spreads easily across the cores.
 
-00:07:09.061 --> 00:07:10.367
+00:07:15.043 --> 00:07:16.349
 No gradients.
 
-00:07:10.367 --> 00:07:11.300
+00:07:16.349 --> 00:07:17.282
 No GPU.
 
-00:07:11.300 --> 00:07:15.779
+00:07:17.282 --> 00:07:21.761
 Just a population of networks, mutating, competing, and growing.
 
-00:07:15.779 --> 00:07:20.123
+00:07:21.761 --> 00:07:26.105
 The code, the clips and the data are on the project page.

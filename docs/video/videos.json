@@ -3,7 +3,7 @@
     {
       "slug": "explainer",
       "title": "NEAT learns to walk",
-      "seconds": 440.4,
+      "seconds": 446.4,
       "scenes": [
         {
           "scene": "title",
@@ -47,27 +47,27 @@
         },
         {
           "scene": "stages",
-          "start": 305.46
+          "start": 305.35
         },
         {
           "scene": "growth",
-          "start": 324.86
+          "start": 324.75
         },
         {
           "scene": "species",
-          "start": 349.18
+          "start": 352.73
         },
         {
           "scene": "results",
-          "start": 377.7
+          "start": 381.25
         },
         {
           "scene": "laptop",
-          "start": 415.93
+          "start": 421.91
         },
         {
           "scene": "outro",
-          "start": 428.71
+          "start": 434.69
         }
       ],
       "transcript": [
@@ -109,7 +109,7 @@
         },
         {
           "scene": "curve",
-          "text": "Here is the whole run. For the first 70 generations or so, the best networks simply stood still. The trap held. Then, around generation 69, a network found a slow shuffle that moved forward without falling. Its score jumped above zero, and the population followed. The champion passed 100 at generation 99. Around generation 430 the scores levelled off, so each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200."
+          "text": "Here is the whole run. For the first 70 generations or so, the best networks simply stood still. The trap held. Then, around generation 69, a network found a slow shuffle that moved forward without falling. Its score jumped above zero, and the population followed. The champion passed 100 at generation 99. The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200."
         },
         {
           "scene": "stages",
@@ -117,7 +117,7 @@
         },
         {
           "scene": "growth",
-          "text": "While the scores rose, the networks grew. The violet line counts hidden nodes in use, and the amber line counts layers from input to output. The champion has 6 hidden nodes in 5 hidden layers, and 37 connections. It started as eight nodes in one layer. Everything else was added by mutation, and kept because it helped."
+          "text": "While the scores rose, the networks grew. The violet line counts hidden nodes in use, and the amber line counts layers from input to output. The champion has 6 hidden nodes in 5 hidden layers, and only 37 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain."
         },
         {
           "scene": "species",
@@ -125,7 +125,7 @@
         },
         {
           "scene": "results",
-          "text": "The real test is one hundred terrains the champion has never seen. Its average is 179. Most runs land in a tight group. But it falls in 17 of the one hundred, and each fall costs a lot. That is what pulls the average down, and it is the main thing left to fix. For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 93 points behind PPO, without computing a single gradient."
+          "text": "The real test is one hundred terrains the champion has never seen. Its average is 179. Half of its runs score between 191 and 220. But it falls in 17 of the one hundred, and each fall costs a lot. That is what pulls the average down, and it is the main thing left to fix. For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 93 points behind PPO, without computing a single gradient."
         },
         {
           "scene": "laptop",
@@ -159,13 +159,13 @@
       "slug": "chapter-4",
       "title": "4. The training run",
       "sub": "from standing still to walking",
-      "seconds": 118.9
+      "seconds": 122.5
     },
     {
       "slug": "chapter-5",
       "title": "5. Results",
       "sub": "100 unseen terrains, and the comparison",
-      "seconds": 56.0
+      "seconds": 58.4
     }
   ]
 }
