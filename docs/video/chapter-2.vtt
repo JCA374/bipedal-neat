@@ -1,0 +1,34 @@
+WEBVTT
+
+00:00:05.350 --> 00:00:07.941
+The pilot is a small neural network.
+
+00:00:07.941 --> 00:00:15.132
+The twenty four sensor values come in on the left and flow through hidden nodes to four outputs on the right.
+
+00:00:15.732 --> 00:00:17.647
+Here it is while walking.
+
+00:00:17.647 --> 00:00:21.129
+Blue means a positive signal, orange a negative one.
+
+00:00:21.129 --> 00:00:24.156
+Thicker lines are stronger connections.
+
+00:00:24.756 --> 00:00:30.542
+The four outputs on the right are the joint torques, sent to the motors at every step.
+
+00:00:31.142 --> 00:00:36.396
+This project had one hard rule: the network must have at least one hidden layer.
+
+00:00:36.396 --> 00:00:45.235
+So every network starts as twenty four inputs, eight hidden nodes and four outputs, with no shortcut from an input straight to a motor.
+
+00:00:45.835 --> 00:00:49.560
+Evolution could still remove nodes, so the code checks.
+
+00:00:49.560 --> 00:00:53.758
+It counts the hidden nodes on a real path from input to output.
+
+00:00:53.758 --> 00:00:59.379
+A network with none gets its fitness cut, and it can never be saved as a champion.

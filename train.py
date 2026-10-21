@@ -185,10 +185,22 @@ def main(argv=None):
     ap.add_argument("--target-species", type=int, default=10,
                     help="adapt compatibility_threshold toward this many species (0 = fixed ini value)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--stop-at", type=float, default=None,
+                    help="stop once the held-out champion mean reaches this (e.g. 300)")
     ap.add_argument("--runs-dir", default=str(common.ROOT / "runs"))
     args = ap.parse_args(argv)
 
     run_dir = Path(args.runs_dir) / args.name
+    # overrides.json in the run dir changes args for the next (resumed) chunk without
+    # touching a running queue script, e.g. {"k": 5, "pop_size": 300, "reason": "..."}.
+    ov_path = run_dir / "overrides.json"
+    overrides = json.loads(ov_path.read_text()) if (args.resume and ov_path.exists()) else {}
+    if overrides:
+        if "k" in overrides:
+            args.k = int(overrides["k"])
+        if "pop_size" in overrides:
+            args.pop_size = int(overrides["pop_size"])
+        print(f"Overrides from {ov_path}: {overrides}")
     ckpt_dir = run_dir / "checkpoints"
     ckpt_path = ckpt_dir / "latest.pkl.gz"
     config = common.load_config(args.config)
@@ -218,8 +230,13 @@ def main(argv=None):
 
     params = effective_params(config, args)
     print("Effective params:", json.dumps(params))
+    hist = state.setdefault("param_history", [])
+    same = lambda h: {k: v for k, v in h.items() if k not in ("generation", "workers", "compatibility_threshold")} == \
+        {k: v for k, v in params.items() if k not in ("workers", "compatibility_threshold")}
+    if not hist or not same(hist[-1]):
+        hist.append({"generation": p.generation, **params, **({"reason": overrides["reason"]} if overrides.get("reason") else {})})
     with open(run_dir / "run_config.json", "w") as f:
-        json.dump({"args": vars(args), "effective": params}, f, indent=2)
+        json.dump({"args": vars(args), "effective": params, "history": state["param_history"]}, f, indent=2)
 
     stats_path = run_dir / "stats.csv"
     new_stats = not stats_path.exists()
@@ -342,6 +359,9 @@ def main(argv=None):
                 break
             if args.hours is not None and time.time() - t_start >= args.hours * 3600:
                 print("Time budget reached")
+                break
+            if args.stop_at is not None and state["best_score"] is not None and state["best_score"] >= args.stop_at:
+                print(f"Champion reached {state['best_score']:.1f} >= --stop-at {args.stop_at}")
                 break
             p.run(fitness_fn, 1)
             if p.generation % args.checkpoint_every == 0:

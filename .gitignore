@@ -8,3 +8,9 @@ __pycache__/
 runs/*
 !runs/baseline/
 runs/baseline/checkpoints/
+
+# Video build products (rendered videos live in docs/video/)
+video_tools/cache/
+docs/video/stills/
+voice/*.txt
+voice/*/audio/

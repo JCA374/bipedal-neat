@@ -1,0 +1,52 @@
+WEBVTT
+
+00:00:05.350 --> 00:00:07.257
+This is Bipedal Walker.
+
+00:00:07.257 --> 00:00:12.056
+A box-shaped body sits on two legs, and each leg has a hip and a knee.
+
+00:00:12.056 --> 00:00:16.047
+The ground is bumpy, and it is different every time.
+
+00:00:16.647 --> 00:00:24.993
+At every step, the walker sets four motor torques, one for each joint, each somewhere between minus one and plus one.
+
+00:00:25.593 --> 00:00:31.691
+The goal is to walk to the far end without falling, within one thousand six hundred steps.
+
+00:00:31.691 --> 00:00:35.663
+That is about thirty two seconds of simulated time.
+
+00:00:36.263 --> 00:00:39.895
+To decide, the walker senses twenty four numbers.
+
+00:00:39.895 --> 00:00:45.993
+Four describe the body: how it is tilted, how fast it spins, and how fast it moves.
+
+00:00:46.593 --> 00:00:53.815
+Ten describe the legs: the angle and speed of every joint, and whether each foot is touching the ground.
+
+00:00:54.415 --> 00:01:00.294
+And ten come from a lidar, a fan of rays that measures how far away the ground is ahead.
+
+00:01:00.294 --> 00:01:05.922
+All of them are scaled to a fixed range, so a trained walker is one small file.
+
+00:01:06.522 --> 00:01:09.495
+The score comes from the environment itself.
+
+00:01:09.495 --> 00:01:14.711
+Moving forward earns points, about three hundred for walking the whole course.
+
+00:01:15.311 --> 00:01:20.679
+Every bit of motor effort costs a little, so flailing lowers the score.
+
+00:01:21.279 --> 00:01:23.292
+And falling is expensive.
+
+00:01:23.292 --> 00:01:28.171
+If the body touches the ground, the episode ends with minus one hundred.
+
+00:01:28.171 --> 00:01:34.510
+The task counts as solved at an average of three hundred, over one hundred random terrains.

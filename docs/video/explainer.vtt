@@ -1,0 +1,274 @@
+WEBVTT
+
+00:00:00.350 --> 00:00:03.230
+This is a neural network learning to walk.
+
+00:00:03.230 --> 00:00:05.591
+Nobody trained it with gradients.
+
+00:00:05.591 --> 00:00:10.498
+It was evolved, weights and shape together, by an algorithm called NEAT.
+
+00:00:11.098 --> 00:00:13.005
+This is Bipedal Walker.
+
+00:00:13.005 --> 00:00:17.804
+A box-shaped body sits on two legs, and each leg has a hip and a knee.
+
+00:00:17.804 --> 00:00:21.795
+The ground is bumpy, and it is different every time.
+
+00:00:22.395 --> 00:00:30.741
+At every step, the walker sets four motor torques, one for each joint, each somewhere between minus one and plus one.
+
+00:00:31.341 --> 00:00:37.439
+The goal is to walk to the far end without falling, within one thousand six hundred steps.
+
+00:00:37.439 --> 00:00:41.411
+That is about thirty two seconds of simulated time.
+
+00:00:42.011 --> 00:00:45.643
+To decide, the walker senses twenty four numbers.
+
+00:00:45.643 --> 00:00:51.741
+Four describe the body: how it is tilted, how fast it spins, and how fast it moves.
+
+00:00:52.341 --> 00:00:59.563
+Ten describe the legs: the angle and speed of every joint, and whether each foot is touching the ground.
+
+00:01:00.163 --> 00:01:06.042
+And ten come from a lidar, a fan of rays that measures how far away the ground is ahead.
+
+00:01:06.042 --> 00:01:11.670
+All of them are scaled to a fixed range, so a trained walker is one small file.
+
+00:01:12.270 --> 00:01:15.243
+The score comes from the environment itself.
+
+00:01:15.243 --> 00:01:20.459
+Moving forward earns points, about three hundred for walking the whole course.
+
+00:01:21.059 --> 00:01:26.427
+Every bit of motor effort costs a little, so flailing lowers the score.
+
+00:01:27.027 --> 00:01:29.040
+And falling is expensive.
+
+00:01:29.040 --> 00:01:33.919
+If the body touches the ground, the episode ends with minus one hundred.
+
+00:01:33.919 --> 00:01:40.258
+The task counts as solved at an average of three hundred, over one hundred random terrains.
+
+00:01:40.858 --> 00:01:43.449
+The pilot is a small neural network.
+
+00:01:43.449 --> 00:01:50.640
+The twenty four sensor values come in on the left and flow through hidden nodes to four outputs on the right.
+
+00:01:51.240 --> 00:01:53.155
+Here it is while walking.
+
+00:01:53.155 --> 00:01:56.637
+Blue means a positive signal, orange a negative one.
+
+00:01:56.637 --> 00:01:59.664
+Thicker lines are stronger connections.
+
+00:02:00.264 --> 00:02:06.050
+The four outputs on the right are the joint torques, sent to the motors at every step.
+
+00:02:06.650 --> 00:02:11.904
+This project had one hard rule: the network must have at least one hidden layer.
+
+00:02:11.904 --> 00:02:20.743
+So every network starts as twenty four inputs, eight hidden nodes and four outputs, with no shortcut from an input straight to a motor.
+
+00:02:21.343 --> 00:02:25.068
+Evolution could still remove nodes, so the code checks.
+
+00:02:25.068 --> 00:02:29.266
+It counts the hidden nodes on a real path from input to output.
+
+00:02:29.266 --> 00:02:34.887
+A network with none gets its fitness cut, and it can never be saved as a champion.
+
+00:02:35.487 --> 00:02:39.864
+NEAT starts with a population of two hundred random networks.
+
+00:02:39.864 --> 00:02:46.001
+Each one is described by a genome: a list of its nodes and its weighted connections.
+
+00:02:46.601 --> 00:02:49.640
+Children differ from their parents by mutation.
+
+00:02:49.640 --> 00:02:52.071
+Most mutations just change a weight.
+
+00:02:52.071 --> 00:02:53.950
+Some add a new connection.
+
+00:02:53.950 --> 00:02:57.928
+And some add a whole new node, by splitting a connection in two.
+
+00:02:57.928 --> 00:03:00.328
+That is how the networks grow.
+
+00:03:00.928 --> 00:03:05.068
+Each generation, the best fifth survive and have children.
+
+00:03:05.068 --> 00:03:09.270
+A child is a copy, or a mix of two parents, plus mutations.
+
+00:03:09.270 --> 00:03:12.330
+The two very best pass on unchanged.
+
+00:03:12.930 --> 00:03:18.773
+Similar networks are grouped into species, and they mostly compete within their own species.
+
+00:03:18.773 --> 00:03:23.104
+That gives a new structure a few generations to prove itself.
+
+00:03:23.704 --> 00:03:25.472
+How good is a network?
+
+00:03:25.472 --> 00:03:31.188
+Every network walks the same three random terrains, and its fitness is the average score.
+
+00:03:31.188 --> 00:03:35.549
+The terrains change every generation, so nobody can memorise them.
+
+00:03:35.549 --> 00:03:38.972
+Later in the run, that went up to 5 terrains.
+
+00:03:39.572 --> 00:03:46.329
+To save time, an episode stops early if the walker makes no real progress for one hundred and fifty steps.
+
+00:03:46.329 --> 00:03:52.437
+A network that just stands there does not waste one thousand six hundred steps of compute.
+
+00:03:53.037 --> 00:03:54.895
+But this creates a trap.
+
+00:03:54.895 --> 00:03:57.623
+Standing still scores about minus nine.
+
+00:03:57.623 --> 00:04:01.106
+A brave attempt that falls scores minus one hundred.
+
+00:04:01.106 --> 00:04:03.786
+So at first, standing still wins.
+
+00:04:04.386 --> 00:04:07.602
+The best score in each generation is noisy.
+
+00:04:07.602 --> 00:04:10.929
+Three terrains can be lucky, or unlucky.
+
+00:04:11.529 --> 00:04:18.560
+So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop.
+
+00:04:18.560 --> 00:04:21.372
+The best average becomes the champion.
+
+00:04:21.372 --> 00:04:23.506
+That is the blue line.
+
+00:04:24.106 --> 00:04:25.927
+Here is the whole run.
+
+00:04:25.927 --> 00:04:30.843
+For the first 70 generations or so, the best networks simply stood still.
+
+00:04:30.843 --> 00:04:32.478
+The trap held.
+
+00:04:33.078 --> 00:04:39.811
+Then, around generation 69, a network found a slow shuffle that moved forward without falling.
+
+00:04:39.811 --> 00:04:44.402
+Its score jumped above zero, and the population followed.
+
+00:04:45.002 --> 00:04:48.797
+The champion passed 100 at generation 99.
+
+00:04:48.797 --> 00:04:59.253
+Around generation 430 the scores levelled off, so each network got 5 terrains instead of three, and the population grew to 300.
+
+00:04:59.253 --> 00:05:05.207
+After 674 generations, its average on ten unseen terrains is 200.
+
+00:05:05.807 --> 00:05:12.645
+Here are the champions side by side, each on a typical terrain: the middle one of its ten test terrains.
+
+00:05:12.645 --> 00:05:16.608
+From a random network, to a shuffle, to a real walk.
+
+00:05:17.208 --> 00:05:20.538
+And this is the final champion.
+
+00:05:25.208 --> 00:05:28.164
+While the scores rose, the networks grew.
+
+00:05:28.164 --> 00:05:34.860
+The violet line counts hidden nodes in use, and the amber line counts layers from input to output.
+
+00:05:35.460 --> 00:05:40.661
+The champion has 6 hidden nodes in 5 hidden layers, and 37 connections.
+
+00:05:40.661 --> 00:05:43.755
+It started as eight nodes in one layer.
+
+00:05:43.755 --> 00:05:48.926
+Everything else was added by mutation, and kept because it helped.
+
+00:05:49.526 --> 00:05:51.770
+This is the number of species.
+
+00:05:51.770 --> 00:06:02.051
+A setting called the compatibility threshold decides how different two networks must be to count as separate species, and the code tunes it to aim for about ten.
+
+00:06:02.651 --> 00:06:12.276
+In the first hour, that tuning ran away. neat python never merges species, so the count barely fell, and the threshold kept climbing, to thirty eight.
+
+00:06:12.276 --> 00:06:17.449
+It is now kept within limits, and the run continued from its checkpoint.
+
+00:06:18.049 --> 00:06:23.300
+The real test is one hundred terrains the champion has never seen.
+
+00:06:23.300 --> 00:06:25.216
+Its average is 179.
+
+00:06:25.216 --> 00:06:28.354
+Most runs land in a tight group.
+
+00:06:28.954 --> 00:06:33.604
+But it falls in 17 of the one hundred, and each fall costs a lot.
+
+00:06:33.604 --> 00:06:39.128
+That is what pulls the average down, and it is the main thing left to fix.
+
+00:06:39.728 --> 00:06:50.229
+For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
+
+00:06:50.229 --> 00:06:55.675
+NEAT is 93 points behind PPO, without computing a single gradient.
+
+00:06:56.275 --> 00:07:02.218
+All of this ran on a four core laptop with no graphics card, in 8 hours of training.
+
+00:07:02.218 --> 00:07:08.461
+Every network is evaluated on its own, so evolution spreads easily across the cores.
+
+00:07:09.061 --> 00:07:10.367
+No gradients.
+
+00:07:10.367 --> 00:07:11.300
+No GPU.
+
+00:07:11.300 --> 00:07:15.779
+Just a population of networks, mutating, competing, and growing.
+
+00:07:15.779 --> 00:07:20.123
+The code, the clips and the data are on the project page.

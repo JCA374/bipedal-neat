@@ -120,6 +120,11 @@ def read_stats(run):
     return rows
 
 
+def _json(p):
+    p = Path(p)
+    return json.loads(p.read_text()) if p.exists() else None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", default="runs/baseline")
@@ -190,7 +195,13 @@ def main():
                      "std": round(champ_meta["std"], 1), **common.topology(champ, config)},
         "network": network_data(champ, config),
         "params": json.loads((run / "run_config.json").read_text())["effective"],
+        "eval": _json(run / "eval" / "best.json"),
+        "eval_milestones": {p.stem.replace("milestone_", ""): {k: v for k, v in _json(p).items() if k != "rewards"}
+                            for p in sorted((run / "eval").glob("milestone_*.json"))},
+        "videos": (_json(DOCS / "video" / "videos.json") or {}).get("videos", []),
     }
+    if data["eval"] and data["eval"].get("genome_key") != champ_meta.get("genome_key"):
+        data["eval"] = None  # stale: evaluated an older champion
     tpl = (common.ROOT / "site_template.html").read_text()
     (DOCS / "index.html").write_text(tpl.replace("/*__DATA__*/null", json.dumps(data, separators=(",", ":"))))
     (DOCS / ".nojekyll").write_text("")

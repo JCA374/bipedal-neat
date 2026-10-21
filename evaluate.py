@@ -17,11 +17,16 @@ import common
 EVAL_SEED_BASE = 20_000_000  # disjoint from training (<1e6) and hall-of-fame (1e7+) seeds
 
 
-def _episode(args):
-    run, seed = args
-    genome, config, _ = common.resolve_genome(run)
-    net = common.make_net(genome, config)
-    r, steps, _, fell = common.run_episode(net, common.make_env(), seed, early_stop=False)
+_G = {}
+
+
+def _episode(seed):
+    # The genome is loaded once in the parent and inherited via fork, so a training run
+    # saving a new champion mid-evaluation can't mix two genomes into one result.
+    if "env" not in _G:
+        _G["env"] = common.make_env()
+        _G["net"] = common.make_net(_G["genome"], _G["config"])
+    r, steps, _, fell = common.run_episode(_G["net"], _G["env"], seed, early_stop=False)
     return r, steps, fell
 
 
@@ -31,13 +36,15 @@ def main():
     ap.add_argument("--episodes", type=int, default=100)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--seed-base", type=int, default=EVAL_SEED_BASE)
+    ap.add_argument("--out", default=None, help="also write the result (with all rewards) as JSON")
     args = ap.parse_args()
 
     genome, config, meta = common.resolve_genome(args.run)
+    _G.update(genome=genome, config=config)
     topo = common.topology(genome, config)
     seeds = [args.seed_base + i for i in range(args.episodes)]
     with mp.get_context("fork").Pool(args.workers) as pool:
-        res = pool.map(_episode, [(args.run, s) for s in seeds], chunksize=1)
+        res = pool.map(_episode, seeds, chunksize=1)
     rewards = np.array([r[0] for r in res])
     out = {
         "run": args.run, "episodes": args.episodes,
@@ -51,6 +58,11 @@ def main():
         "logged_hof_mean": meta.get("mean"),
     }
     print(json.dumps(out, indent=2))
+    if args.out:
+        os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+        with open(args.out, "w") as f:
+            json.dump({**out, "genome_key": meta.get("genome_key"), "generation": meta.get("generation"),
+                       "rewards": [round(float(r), 2) for r in rewards]}, f, indent=2)
 
 
 if __name__ == "__main__":

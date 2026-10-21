@@ -1,0 +1,82 @@
+WEBVTT
+
+00:00:05.350 --> 00:00:09.727
+NEAT starts with a population of two hundred random networks.
+
+00:00:09.727 --> 00:00:15.864
+Each one is described by a genome: a list of its nodes and its weighted connections.
+
+00:00:16.464 --> 00:00:19.503
+Children differ from their parents by mutation.
+
+00:00:19.503 --> 00:00:21.934
+Most mutations just change a weight.
+
+00:00:21.934 --> 00:00:23.813
+Some add a new connection.
+
+00:00:23.813 --> 00:00:27.791
+And some add a whole new node, by splitting a connection in two.
+
+00:00:27.791 --> 00:00:30.191
+That is how the networks grow.
+
+00:00:30.791 --> 00:00:34.931
+Each generation, the best fifth survive and have children.
+
+00:00:34.931 --> 00:00:39.133
+A child is a copy, or a mix of two parents, plus mutations.
+
+00:00:39.133 --> 00:00:42.193
+The two very best pass on unchanged.
+
+00:00:42.793 --> 00:00:48.636
+Similar networks are grouped into species, and they mostly compete within their own species.
+
+00:00:48.636 --> 00:00:52.967
+That gives a new structure a few generations to prove itself.
+
+00:00:53.567 --> 00:00:55.335
+How good is a network?
+
+00:00:55.335 --> 00:01:01.051
+Every network walks the same three random terrains, and its fitness is the average score.
+
+00:01:01.051 --> 00:01:05.412
+The terrains change every generation, so nobody can memorise them.
+
+00:01:05.412 --> 00:01:08.835
+Later in the run, that went up to 5 terrains.
+
+00:01:09.435 --> 00:01:16.192
+To save time, an episode stops early if the walker makes no real progress for one hundred and fifty steps.
+
+00:01:16.192 --> 00:01:22.300
+A network that just stands there does not waste one thousand six hundred steps of compute.
+
+00:01:22.900 --> 00:01:24.758
+But this creates a trap.
+
+00:01:24.758 --> 00:01:27.486
+Standing still scores about minus nine.
+
+00:01:27.486 --> 00:01:30.969
+A brave attempt that falls scores minus one hundred.
+
+00:01:30.969 --> 00:01:33.649
+So at first, standing still wins.
+
+00:01:34.249 --> 00:01:37.465
+The best score in each generation is noisy.
+
+00:01:37.465 --> 00:01:40.792
+Three terrains can be lucky, or unlucky.
+
+00:01:41.392 --> 00:01:48.423
+So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop.
+
+00:01:48.423 --> 00:01:51.235
+The best average becomes the champion.
+
+00:01:51.235 --> 00:01:53.369
+That is the blue line.

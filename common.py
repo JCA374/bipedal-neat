@@ -155,8 +155,10 @@ def has_hidden_layer(genome, config):
 def save_genome(path, genome, meta=None):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "wb") as f:
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "wb") as f:  # atomic: readers never see a half-written file
         pickle.dump({"genome": genome, "meta": meta or {}}, f)
+    tmp.replace(path)
 
 
 def load_genome(path):

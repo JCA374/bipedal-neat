@@ -126,6 +126,7 @@
   <header class="top">
     <a class="brand" href="#">NEAT <span>Bipedal Walker</span></a>
     <nav>
+      <a href="#watch" id="navWatch" hidden>Video</a>
       <a href="#clips">Progress</a>
       <a href="#curve" class="opt">Training</a>
       <a href="#network" class="opt">Network</a>
@@ -145,6 +146,14 @@
     <div class="stats" id="stats"></div>
   </div>
 </div>
+
+<section id="watch" hidden><div class="wrap">
+  <h2><span class="num">▶</span>The explainer</h2>
+  <p class="intro">The whole project in one narrated video: the task, the network, how NEAT evolves it, the
+    training run and the final test. Captions are on by default. Below it, the same video split into chapters.</p>
+  <div class="video-card"><video id="explainer" controls preload="metadata" playsinline></video></div>
+  <div class="clips" id="chapterGrid"></div>
+</div></section>
 
 <section id="clips"><div class="wrap">
   <h2><span class="num">1</span>Progress, stage by stage</h2>
@@ -178,8 +187,18 @@
   </div>
 </div></section>
 
+<section id="test" hidden><div class="wrap">
+  <h2><span class="num">4</span>The final test</h2>
+  <p class="intro" id="testIntro"></p>
+  <div class="panel chart">
+    <div class="scroll-x"><div id="hist"></div></div>
+    <div class="tip" id="histTip"></div>
+  </div>
+  <div class="tablewrap" id="msTableWrap" style="max-height:none"><table id="msTable"></table></div>
+</div></section>
+
 <section id="how"><div class="wrap">
-  <h2><span class="num">4</span>How it works</h2>
+  <h2><span class="num">5</span>How it works</h2>
   <div class="cols">
     <div>
       <ul>
@@ -242,7 +261,8 @@ const svgEl = (tag, attrs = {}, parent) => {
     `${last.hidden_in_use} hidden nodes in ${last.depth - 1} hidden layer${last.depth > 2 ? "s" : ""}.`;
   const s = DATA.stats, lastRow = s[s.length - 1];
   const tiles = [
-    [fmt(DATA.champion.mean), "champion average reward (10 unseen terrains)", "var(--s1)"],
+    DATA.eval ? [fmt(DATA.eval.mean), "champion average over 100 unseen terrains", "var(--s1)"]
+              : [fmt(DATA.champion.mean), "champion average reward (10 unseen terrains)", "var(--s1)"],
     [String(lastRow.g + 1), "generations so far"],
     [String(DATA.champion.hidden_in_use), `hidden nodes in use (depth ${DATA.champion.depth})`],
     [`${(lastRow.wall / 3600).toFixed(1)} h`, `training time · ${(lastRow.steps / 1e6).toFixed(1)} M env steps`],
@@ -342,6 +362,76 @@ const svgEl = (tag, attrs = {}, parent) => {
   document.getElementById("table").innerHTML =
     "<tr><th>Gen</th><th>Champion</th><th>Best</th><th>Mean</th><th>Species</th><th>Hidden</th><th>Depth</th></tr>" +
     rows.map((r, i) => `<tr><td>${r.g}</td><td>${fmt(champRows[i])}</td><td>${fmt(r.best)}</td><td>${fmt(r.mean)}</td><td>${r.species}</td><td>${r.hidden}</td><td>${r.depth}</td></tr>`).join("");
+})();
+
+// ---------- explainer + chapters
+(() => {
+  const vids = DATA.videos || [];
+  const main = vids.find(v => v.slug === "explainer");
+  if (!main) return;
+  document.getElementById("watch").hidden = false;
+  document.getElementById("navWatch").hidden = false;
+  const v = document.getElementById("explainer");
+  v.src = "video/explainer.mp4"; v.poster = "video/explainer.jpg";
+  const tr = document.createElement("track");
+  Object.assign(tr, { kind: "captions", srclang: "en", label: "English", src: "video/explainer.vtt", default: true });
+  v.appendChild(tr);
+  const mmss = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
+  document.getElementById("chapterGrid").innerHTML = vids.filter(c => c.slug !== "explainer").map(c => `
+    <div class="clip">
+      <video src="video/${c.slug}.mp4" poster="video/${c.slug}.jpg" controls preload="none" playsinline>
+        <track kind="captions" srclang="en" label="English" src="video/${c.slug}.vtt" default></video>
+      <div class="body"><h3>${c.title}</h3><p>${c.sub || ""}</p>
+        <div class="chips"><span class="chip"><b>${mmss(c.seconds)}</b></span></div></div>
+    </div>`).join("");
+})();
+
+// ---------- final test
+(() => {
+  const ev = DATA.eval;
+  if (!ev || !ev.rewards) return;
+  document.getElementById("test").hidden = false;
+  const r = ev.rewards, falls = Math.round(ev.fell_frac * 100);
+  document.getElementById("testIntro").textContent =
+    `The champion walked 100 terrains it had never seen, with full-length episodes. Average ${fmt(ev.mean)} ` +
+    `(standard deviation ${ev.std.toFixed(0)}), it fell in ${falls} of 100, and ${Math.round(ev.solved_frac * 100)} scored 300 or more. ` +
+    `For comparison, the gradient-based runs on this laptop reached 272 (PPO) and 308 to 319 (TD3).`;
+  const lo = -150, hi = 350, bw = 25, nb = (hi - lo) / bw;
+  const counts = Array(nb).fill(0);
+  r.forEach(v => counts[Math.min(nb - 1, Math.max(0, Math.floor((v - lo) / bw)))]++);
+  const W = 960, H = 300, m = { l: 40, r: 16, t: 16, b: 40 };
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Histogram of 100 test episodes" }, document.getElementById("hist"));
+  const tick = Math.max(1, Math.ceil(Math.max(...counts) / 5 / 5) * 5);
+  const cw = (W - m.l - m.r) / nb, maxC = Math.ceil(Math.max(...counts) / tick) * tick;
+  const y = c => H - m.b - c / maxC * (H - m.t - m.b);
+  const tip = document.getElementById("histTip"), panel = tip.parentElement;
+  for (let c = 0; c <= maxC; c += tick) {
+    svgEl("line", { x1: m.l, x2: W - m.r, y1: y(c), y2: y(c), stroke: "var(--grid)" }, svg);
+    svgEl("text", { x: m.l - 8, y: y(c) + 4, "text-anchor": "end", "font-size": 12, fill: "var(--muted)" }, svg).textContent = c;
+  }
+  counts.forEach((c, i) => {
+    const x = m.l + i * cw, from = lo + i * bw;
+    const bar = svgEl("rect", { x: x + 1, y: y(c), width: cw - 2, height: Math.max(0, H - m.b - y(c)), rx: 3,
+      fill: from < 0 ? "var(--s2)" : "var(--s1)" }, svg);
+    const hit = svgEl("rect", { x, y: m.t, width: cw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", ev2 => {
+      tip.innerHTML = `<b>${from} to ${from + bw}</b><div class="row"><span>episodes</span><b>${c}</b></div>`;
+      const pr = panel.getBoundingClientRect();
+      tip.style.left = Math.min(pr.width - 170, ev2.clientX - pr.left + 12) + "px"; tip.style.top = "20px"; tip.style.opacity = 1;
+      bar.setAttribute("opacity", .75);
+    });
+    hit.addEventListener("pointerleave", () => { tip.style.opacity = 0; bar.setAttribute("opacity", 1); });
+  });
+  for (let v = -100; v <= 300; v += 100) {
+    const x = m.l + (v - lo) / bw * cw;
+    svgEl("text", { x, y: H - m.b + 18, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, svg).textContent = v;
+  }
+  svgEl("text", { x: (W) / 2, y: H - 4, "text-anchor": "middle", "font-size": 12, fill: "var(--muted)" }, svg).textContent = "score per episode (orange: below zero, mostly falls)";
+  const ms = DATA.eval_milestones || {};
+  const names = { first_positive: "First positive", "100": "Milestone 100", "200": "Milestone 200", "300": "Milestone 300" };
+  const rows = Object.entries(ms).map(([k, e]) => `<tr><td style="text-align:left">${names[k] || k}</td><td>${fmt(e.mean)}</td><td>${e.std.toFixed(0)}</td><td>${Math.round(e.fell_frac * 100)}%</td><td>${e.hidden_in_use} / ${e.depth}</td></tr>`);
+  rows.push(`<tr><td style="text-align:left"><b>Champion</b></td><td><b>${fmt(ev.mean)}</b></td><td>${ev.std.toFixed(0)}</td><td>${falls}%</td><td>${ev.hidden_in_use} / ${ev.depth}</td></tr>`);
+  document.getElementById("msTable").innerHTML = `<tr><th style="text-align:left">Network</th><th>Mean (100 terrains)</th><th>Std</th><th>Falls</th><th>Hidden / depth</th></tr>` + rows.join("");
 })();
 
 // ---------- network

@@ -1,0 +1,28 @@
+WEBVTT
+
+00:00:05.350 --> 00:00:10.601
+The real test is one hundred terrains the champion has never seen.
+
+00:00:10.601 --> 00:00:12.517
+Its average is 179.
+
+00:00:12.517 --> 00:00:15.655
+Most runs land in a tight group.
+
+00:00:16.255 --> 00:00:20.905
+But it falls in 17 of the one hundred, and each fall costs a lot.
+
+00:00:20.905 --> 00:00:26.429
+That is what pulls the average down, and it is the main thing left to fix.
+
+00:00:27.029 --> 00:00:37.530
+For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
+
+00:00:37.530 --> 00:00:42.976
+NEAT is 93 points behind PPO, without computing a single gradient.
+
+00:00:43.576 --> 00:00:49.519
+All of this ran on a four core laptop with no graphics card, in 8 hours of training.
+
+00:00:49.519 --> 00:00:55.762
+Every network is evaluated on its own, so evolution spreads easily across the cores.

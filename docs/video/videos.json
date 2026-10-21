@@ -1,0 +1,171 @@
+{
+  "videos": [
+    {
+      "slug": "explainer",
+      "title": "NEAT learns to walk",
+      "seconds": 440.4,
+      "scenes": [
+        {
+          "scene": "title",
+          "start": 0.0
+        },
+        {
+          "scene": "task",
+          "start": 10.75
+        },
+        {
+          "scene": "senses",
+          "start": 41.66
+        },
+        {
+          "scene": "reward",
+          "start": 71.92
+        },
+        {
+          "scene": "network",
+          "start": 100.51
+        },
+        {
+          "scene": "hidden",
+          "start": 126.3
+        },
+        {
+          "scene": "neat",
+          "start": 155.14
+        },
+        {
+          "scene": "fitness",
+          "start": 203.35
+        },
+        {
+          "scene": "hof",
+          "start": 244.04
+        },
+        {
+          "scene": "curve",
+          "start": 263.76
+        },
+        {
+          "scene": "stages",
+          "start": 305.46
+        },
+        {
+          "scene": "growth",
+          "start": 324.86
+        },
+        {
+          "scene": "species",
+          "start": 349.18
+        },
+        {
+          "scene": "results",
+          "start": 377.7
+        },
+        {
+          "scene": "laptop",
+          "start": 415.93
+        },
+        {
+          "scene": "outro",
+          "start": 428.71
+        }
+      ],
+      "transcript": [
+        {
+          "scene": "title",
+          "text": "This is a neural network learning to walk. Nobody trained it with gradients. It was evolved, weights and shape together, by an algorithm called NEAT."
+        },
+        {
+          "scene": "task",
+          "text": "This is Bipedal Walker. A box-shaped body sits on two legs, and each leg has a hip and a knee. The ground is bumpy, and it is different every time. At every step, the walker sets four motor torques, one for each joint, each somewhere between minus one and plus one. The goal is to walk to the far end without falling, within one thousand six hundred steps. That is about thirty two seconds of simulated time."
+        },
+        {
+          "scene": "senses",
+          "text": "To decide, the walker senses twenty four numbers. Four describe the body: how it is tilted, how fast it spins, and how fast it moves. Ten describe the legs: the angle and speed of every joint, and whether each foot is touching the ground. And ten come from a lidar, a fan of rays that measures how far away the ground is ahead. All of them are scaled to a fixed range, so a trained walker is one small file."
+        },
+        {
+          "scene": "reward",
+          "text": "The score comes from the environment itself. Moving forward earns points, about three hundred for walking the whole course. Every bit of motor effort costs a little, so flailing lowers the score. And falling is expensive. If the body touches the ground, the episode ends with minus one hundred. The task counts as solved at an average of three hundred, over one hundred random terrains."
+        },
+        {
+          "scene": "network",
+          "text": "The pilot is a small neural network. The twenty four sensor values come in on the left and flow through hidden nodes to four outputs on the right. Here it is while walking. Blue means a positive signal, orange a negative one. Thicker lines are stronger connections. The four outputs on the right are the joint torques, sent to the motors at every step."
+        },
+        {
+          "scene": "hidden",
+          "text": "This project had one hard rule: the network must have at least one hidden layer. So every network starts as twenty four inputs, eight hidden nodes and four outputs, with no shortcut from an input straight to a motor. Evolution could still remove nodes, so the code checks. It counts the hidden nodes on a real path from input to output. A network with none gets its fitness cut, and it can never be saved as a champion."
+        },
+        {
+          "scene": "neat",
+          "text": "NEAT starts with a population of two hundred random networks. Each one is described by a genome: a list of its nodes and its weighted connections. Children differ from their parents by mutation. Most mutations just change a weight. Some add a new connection. And some add a whole new node, by splitting a connection in two. That is how the networks grow. Each generation, the best fifth survive and have children. A child is a copy, or a mix of two parents, plus mutations. The two very best pass on unchanged. Similar networks are grouped into species, and they mostly compete within their own species. That gives a new structure a few generations to prove itself."
+        },
+        {
+          "scene": "fitness",
+          "text": "How good is a network? Every network walks the same three random terrains, and its fitness is the average score. The terrains change every generation, so nobody can memorise them. Later in the run, that went up to 5 terrains. To save time, an episode stops early if the walker makes no real progress for one hundred and fifty steps. A network that just stands there does not waste one thousand six hundred steps of compute. But this creates a trap. Standing still scores about minus nine. A brave attempt that falls scores minus one hundred. So at first, standing still wins."
+        },
+        {
+          "scene": "hof",
+          "text": "The best score in each generation is noisy. Three terrains can be lucky, or unlucky. So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop. The best average becomes the champion. That is the blue line."
+        },
+        {
+          "scene": "curve",
+          "text": "Here is the whole run. For the first 70 generations or so, the best networks simply stood still. The trap held. Then, around generation 69, a network found a slow shuffle that moved forward without falling. Its score jumped above zero, and the population followed. The champion passed 100 at generation 99. Around generation 430 the scores levelled off, so each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200."
+        },
+        {
+          "scene": "stages",
+          "text": "Here are the champions side by side, each on a typical terrain: the middle one of its ten test terrains. From a random network, to a shuffle, to a real walk. And this is the final champion."
+        },
+        {
+          "scene": "growth",
+          "text": "While the scores rose, the networks grew. The violet line counts hidden nodes in use, and the amber line counts layers from input to output. The champion has 6 hidden nodes in 5 hidden layers, and 37 connections. It started as eight nodes in one layer. Everything else was added by mutation, and kept because it helped."
+        },
+        {
+          "scene": "species",
+          "text": "This is the number of species. A setting called the compatibility threshold decides how different two networks must be to count as separate species, and the code tunes it to aim for about ten. In the first hour, that tuning ran away. neat python never merges species, so the count barely fell, and the threshold kept climbing, to thirty eight. It is now kept within limits, and the run continued from its checkpoint."
+        },
+        {
+          "scene": "results",
+          "text": "The real test is one hundred terrains the champion has never seen. Its average is 179. Most runs land in a tight group. But it falls in 17 of the one hundred, and each fall costs a lot. That is what pulls the average down, and it is the main thing left to fix. For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 93 points behind PPO, without computing a single gradient."
+        },
+        {
+          "scene": "laptop",
+          "text": "All of this ran on a four core laptop with no graphics card, in 8 hours of training. Every network is evaluated on its own, so evolution spreads easily across the cores."
+        },
+        {
+          "scene": "outro",
+          "text": "No gradients. No GPU. Just a population of networks, mutating, competing, and growing. The code, the clips and the data are on the project page."
+        }
+      ]
+    },
+    {
+      "slug": "chapter-1",
+      "title": "1. The task",
+      "sub": "what the walker senses, does and is scored on",
+      "seconds": 94.8
+    },
+    {
+      "slug": "chapter-2",
+      "title": "2. The network",
+      "sub": "a pilot with at least one hidden layer",
+      "seconds": 59.6
+    },
+    {
+      "slug": "chapter-3",
+      "title": "3. How NEAT evolves it",
+      "sub": "mutation, species, fitness and the champion",
+      "seconds": 113.6
+    },
+    {
+      "slug": "chapter-4",
+      "title": "4. The training run",
+      "sub": "from standing still to walking",
+      "seconds": 118.9
+    },
+    {
+      "slug": "chapter-5",
+      "title": "5. Results",
+      "sub": "100 unseen terrains, and the comparison",
+      "seconds": 56.0
+    }
+  ]
+}
