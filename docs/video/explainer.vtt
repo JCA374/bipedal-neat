@@ -219,74 +219,77 @@ While the scores rose, the networks grew.
 00:05:37.987 --> 00:05:44.683
 The violet line counts hidden nodes in use, and the amber line counts layers from input to output.
 
-00:05:45.283 --> 00:05:50.754
+00:05:45.283 --> 00:05:50.764
 The champion has 4 hidden nodes in one hidden layer, and only 30 connections.
 
-00:05:50.754 --> 00:05:55.646
+00:05:50.764 --> 00:05:55.665
 It started with eight hidden nodes in one layer and 224 connections.
 
-00:05:55.646 --> 00:06:01.674
-Evolution threw most of them away, and stacked what was left into a deeper chain.
+00:05:55.665 --> 00:06:00.501
+Evolution threw most of them away, and kept one small hidden layer.
 
-00:06:02.274 --> 00:06:04.518
+00:06:00.501 --> 00:06:04.025
+Still a hidden layer, as the rules demand.
+
+00:06:04.625 --> 00:06:06.869
 This is the number of species.
 
-00:06:04.518 --> 00:06:14.799
+00:06:06.869 --> 00:06:17.150
 A setting called the compatibility threshold decides how different two networks must be to count as separate species, and the code tunes it to aim for about ten.
 
-00:06:15.399 --> 00:06:25.024
+00:06:17.750 --> 00:06:27.375
 In the first hour, that tuning ran away. neat python never merges species, so the count barely fell, and the threshold kept climbing, to thirty eight.
 
-00:06:25.024 --> 00:06:30.197
+00:06:27.375 --> 00:06:32.548
 It is now kept within limits, and the run continued from its checkpoint.
 
-00:06:30.797 --> 00:06:36.914
+00:06:33.148 --> 00:06:39.265
 The real test is one hundred terrains the champion has never seen.
 
-00:06:36.914 --> 00:06:39.146
+00:06:39.265 --> 00:06:41.497
 Its average is 173.
 
-00:06:39.146 --> 00:06:43.662
+00:06:41.497 --> 00:06:46.013
 Half of its runs score between 163 and 207.
 
-00:06:44.262 --> 00:06:48.222
+00:06:46.613 --> 00:06:50.610
 But it falls in 9 of the one hundred, and each fall costs a lot.
 
-00:06:48.222 --> 00:06:52.348
+00:06:50.610 --> 00:06:54.773
 Almost all falls look the same: 93 percent are forward pitch-overs.
 
-00:06:52.348 --> 00:06:58.399
+00:06:54.773 --> 00:07:00.879
 The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second.
 
-00:06:58.399 --> 00:07:04.174
+00:07:00.879 --> 00:07:06.708
 Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred.
 
-00:07:04.174 --> 00:07:08.410
-On the same one hundred terrains, the difference is within the noise.
+00:07:06.708 --> 00:07:10.316
+The score difference between the two is within the noise.
 
-00:07:08.410 --> 00:07:11.625
+00:07:10.316 --> 00:07:13.558
 Falling is still what pulls the average down.
 
-00:07:12.225 --> 00:07:22.639
+00:07:14.158 --> 00:07:24.572
 For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
 
-00:07:22.639 --> 00:07:28.042
+00:07:24.572 --> 00:07:29.975
 NEAT is 99 points behind PPO, without computing a single gradient.
 
-00:07:28.642 --> 00:07:34.682
+00:07:30.575 --> 00:07:36.615
 All of this ran on a four core laptop with no graphics card, in 12 hours of training.
 
-00:07:34.682 --> 00:07:40.958
+00:07:36.615 --> 00:07:42.891
 Every network is evaluated on its own, so evolution spreads easily across the cores.
 
-00:07:41.558 --> 00:07:42.864
+00:07:43.491 --> 00:07:44.797
 No gradients.
 
-00:07:42.864 --> 00:07:43.797
+00:07:44.797 --> 00:07:45.730
 No GPU.
 
-00:07:43.797 --> 00:07:48.276
+00:07:45.730 --> 00:07:50.209
 Just a population of networks, mutating, competing, and growing.
 
-00:07:48.276 --> 00:07:52.620
+00:07:50.209 --> 00:07:54.553
 The code, the clips and the data are on the project page.

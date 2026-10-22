@@ -2,7 +2,7 @@
 
 **Live page with the narrated explainer, chapter videos and progress clips:** https://jca374.github.io/bipedal-neat/
 
-**Result (run `baseline`, 674 generations, 8.2 h on a 4-core laptop):** the champion averages **+179 ± 75 over 100 unseen terrains**. Its median is 206, the middle half scores 191–220, and it falls in 17 of 100. It has 6 hidden nodes in 5 hidden layers and 37 connections. For comparison, PPO reached 272 and TD3 reached 308–319 on the same laptop. Details are in `TRAINING_LOG.md`.
+**Result (run `baseline`, 740 generations, ~12 h on a 4-core laptop):** the champion (gen 709) averages **+173 ± 63 over 100 unseen terrains** and falls in 9 of 100. It has 4 hidden nodes in one hidden layer and 30 connections. A fall analysis (`experiments/`, report on the page) showed that 90% of falls were forward pitch-overs after risky speed-ups. A training-only fall penalty then halved the fall rate (17% → 9%) without a significant change in score: paired difference −5.4, 95% CI [−26.5, +16.0]. For comparison, PPO reached 272 and TD3 reached 308–319 on the same laptop. Details are in `TRAINING_LOG.md`.
 
 NEAT (neuroevolution, gradient-free) on BipedalWalker-v3. It is a baseline to compare with the PPO (`../bipedal-claude-ppo`) and TD3 (`../bipedal-claude`) projects. See `PLAN.md` for the design and the lessons carried over from those projects.
 
@@ -42,6 +42,14 @@ DEADLINE=05:00 TARGET=300 nohup ./overnight.sh > overnight.log 2>&1 &
 ```
 The queue trains in 1 h chunks (4 or 6 workers depending on what else is running), evaluates on 100 terrains, writes the narration from the final numbers (`video_tools/narration.py`), voices it with the voice-text pipeline (Kokoro + Whisper check), renders `docs/video/` (explainer + 5 chapters), rebuilds the site and pushes.
 To change settings for the next chunk without touching the running script, use `runs/<name>/overrides.json` (`{"k": 5, "pop_size": 300, "reason": "..."}`).
+
+## Experiments (failure analysis and validation)
+```bash
+python experiments/record_episodes.py --run runs/baseline --episodes 300   # every step logged, seeds 3e7+
+python experiments/analyze_falls.py results/episodes/baseline.jsonl.gz      # results/fall_analysis/baseline/report.html
+python experiments/reselect.py --run runs/baseline                         # re-pick champion from the population (paired, bootstrap)
+python experiments/compare.py runs/baseline/champion_v1 runs/baseline      # paired comparison on 100 new terrains
+```
 
 ## Site
 ```bash

@@ -9,32 +9,32 @@ Its average is 173.
 00:00:13.699 --> 00:00:18.215
 Half of its runs score between 163 and 207.
 
-00:00:18.815 --> 00:00:22.775
+00:00:18.815 --> 00:00:22.812
 But it falls in 9 of the one hundred, and each fall costs a lot.
 
-00:00:22.775 --> 00:00:26.901
+00:00:22.812 --> 00:00:26.975
 Almost all falls look the same: 93 percent are forward pitch-overs.
 
-00:00:26.901 --> 00:00:32.952
+00:00:26.975 --> 00:00:33.081
 The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second.
 
-00:00:32.952 --> 00:00:38.727
+00:00:33.081 --> 00:00:38.910
 Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred.
 
-00:00:38.727 --> 00:00:42.963
-On the same one hundred terrains, the difference is within the noise.
+00:00:38.910 --> 00:00:42.518
+The score difference between the two is within the noise.
 
-00:00:42.963 --> 00:00:46.178
+00:00:42.518 --> 00:00:45.760
 Falling is still what pulls the average down.
 
-00:00:46.778 --> 00:00:57.192
+00:00:46.360 --> 00:00:56.774
 For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
 
-00:00:57.192 --> 00:01:02.595
+00:00:56.774 --> 00:01:02.177
 NEAT is 99 points behind PPO, without computing a single gradient.
 
-00:01:03.195 --> 00:01:09.235
+00:01:02.777 --> 00:01:08.817
 All of this ran on a four core laptop with no graphics card, in 12 hours of training.
 
-00:01:09.235 --> 00:01:15.511
+00:01:08.817 --> 00:01:15.093
 Every network is evaluated on its own, so evolution spreads easily across the cores.

@@ -472,7 +472,8 @@ def scene_growth(ctx, name="growth"):
                    f"{tp['enabled_conns']} connections. " +
                    ("It started as 8 nodes in one layer; everything else was added by mutation and kept because it helped."
                     if grew else "It started with 8 hidden nodes in one layer and 224 connections. Evolution "
-                    "removed most of them and stacked the rest into a deeper chain."))
+                    "removed most of them" + (" and stacked the rest into a deeper chain." if tp["depth"] > 2
+                                              else " and kept one small hidden layer.")))
             paragraph(d, (900, 180), msg, 26, 20, FG, fade(t, b.at(1) + 0.5))
         return img
     return Scene(name, render, [8.0, 9.0])

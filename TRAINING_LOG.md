@@ -39,3 +39,9 @@
 ## Run 1, phase 4: fall penalty (2026-10-22 12:34 → 17:00)
 - Resumed from gen 674 with `overrides.json`: K=5, pop 300, **fall_penalty 100** (training fitness only; all reported scores stay raw), **hof_seeds 20**. The previous champion is kept as `runs/baseline/champion_v1` for a paired comparison on 100 new terrains (`experiments/compare.py`, seeds 4e7+).
 - 4 workers: two lunar-lander runs shared the CPU.
+- Result at the 17:00 deadline (gen 740): HOF champion from gen 709, 188.8 on 20 terrains; 4 hidden nodes in 1 hidden layer, 30 connections.
+- 100 eval terrains: **+173.2 ± 63, falls 9%**. v1: +179.0 ± 75, falls 17%.
+- Paired on 100 new terrains (`compare.py`): v1 173.3 (17 falls) vs new 167.9 (12 falls). Difference **−5.4, 95% CI [−26.5, +16.0]**; fall difference CI [−0.15, +0.05]; the new champion wins on 40% of terrains.
+- Fall analysis of the new champion: 27/300 falls (9%) vs 39/300 before, still 93% forward pitch-overs.
+- **Conclusion:** the fall penalty cut falls by about a third to a half, but the score did not change significantly. Speed and falls still trade off. The new champion is published: same score, fewer falls.
+- Ops note: `make_site.py` was OOM-killed in the queue (it kept 1600 frames per clip in RAM, while two other training runs filled swap). Clips now stream to ffmpeg, peak 157 MB.

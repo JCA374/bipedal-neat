@@ -129,8 +129,9 @@ def build(ctx):
     else:
         s["growth.2"] = (f"The champion has {tp['hidden_in_use']} hidden nodes in {layers_s}, and only "
                          f"{tp['enabled_conns']} connections. It started with eight hidden nodes in one layer and "
-                         f"{start_conns} connections. Evolution threw most of them away, and stacked what was "
-                         "left into a deeper chain.")
+                         f"{start_conns} connections. Evolution threw most of them away" +
+                         (", and stacked what was left into a deeper chain." if hl > 1 else
+                          ", and kept one small hidden layer. Still a hidden layer, as the rules demand."))
     s["species"] = ("This is the number of species. A setting called the compatibility threshold decides how "
                     "different two networks must be to count as separate species, and the code tunes it to aim "
                     "for about ten.")
@@ -149,8 +150,9 @@ def build(ctx):
     if cmp and penalty:
         better = cmp["diff_ci"][0] > 0
         worse = cmp["diff_ci"][1] < 0
-        verdict = ("That made a real difference" if better else "That made things worse" if worse
-                   else "On the same one hundred terrains, the difference is within the noise")
+        verdict = ("The score went up, and that difference is real" if better else
+                   "The score went down, and that difference is real" if worse
+                   else "The score difference between the two is within the noise")
         why += (f" Compared with the champion from before the fall penalty, falls went from {cmp['a']['falls']} "
                 f"to {cmp['b']['falls']} in one hundred. {verdict}.")
     if falls >= 4:

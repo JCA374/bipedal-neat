@@ -3,7 +3,7 @@
     {
       "slug": "explainer",
       "title": "NEAT learns to walk",
-      "seconds": 472.9,
+      "seconds": 474.8,
       "scenes": [
         {
           "scene": "title",
@@ -55,19 +55,19 @@
         },
         {
           "scene": "species",
-          "start": 361.92
+          "start": 364.27
         },
         {
           "scene": "results",
-          "start": 390.45
+          "start": 392.8
         },
         {
           "scene": "laptop",
-          "start": 448.29
+          "start": 450.23
         },
         {
           "scene": "outro",
-          "start": 461.21
+          "start": 463.14
         }
       ],
       "transcript": [
@@ -117,7 +117,7 @@
         },
         {
           "scene": "growth",
-          "text": "While the scores rose, the networks grew. The violet line counts hidden nodes in use, and the amber line counts layers from input to output. The champion has 4 hidden nodes in one hidden layer, and only 30 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain."
+          "text": "While the scores rose, the networks grew. The violet line counts hidden nodes in use, and the amber line counts layers from input to output. The champion has 4 hidden nodes in one hidden layer, and only 30 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and kept one small hidden layer. Still a hidden layer, as the rules demand."
         },
         {
           "scene": "species",
@@ -125,7 +125,7 @@
         },
         {
           "scene": "results",
-          "text": "The real test is one hundred terrains the champion has never seen. Its average is 173. Half of its runs score between 163 and 207. But it falls in 9 of the one hundred, and each fall costs a lot. Almost all falls look the same: 93 percent are forward pitch-overs. The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second. Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred. On the same one hundred terrains, the difference is within the noise. Falling is still what pulls the average down. For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 99 points behind PPO, without computing a single gradient."
+          "text": "The real test is one hundred terrains the champion has never seen. Its average is 173. Half of its runs score between 163 and 207. But it falls in 9 of the one hundred, and each fall costs a lot. Almost all falls look the same: 93 percent are forward pitch-overs. The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second. Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred. The score difference between the two is within the noise. Falling is still what pulls the average down. For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 99 points behind PPO, without computing a single gradient."
         },
         {
           "scene": "laptop",
@@ -159,13 +159,13 @@
       "slug": "chapter-4",
       "title": "4. The training run",
       "sub": "from standing still to walking",
-      "seconds": 128.3
+      "seconds": 130.7
     },
     {
       "slug": "chapter-5",
       "title": "5. Results",
       "sub": "100 unseen terrains, and the comparison",
-      "seconds": 75.8
+      "seconds": 75.3
     }
   ]
 }

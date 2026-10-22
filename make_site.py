@@ -51,35 +51,43 @@ def median_seed(genome, config):
 
 
 def render_clip(genome, config, out_mp4, label, helpers):
+    """Stream frames straight to ffmpeg (keeping 1600 frames in RAM is ~1.1 GB per clip)."""
     seed, rewards = median_seed(genome, config)
     net = common.make_net(genome, config)
     env = common.make_env(render_mode="rgb_array")
-    frames, scores = [], []
+    state = {"proc": None, "n": 0, "last": None, "score": 0.0, "i": 0}
+
+    def write(frame, score):
+        if state["proc"] is None:
+            h, w, _ = frame.shape
+            state["proc"] = subprocess.Popen(
+                ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+                 "-s", f"{w}x{h}", "-r", "50", "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                 "-crf", "26", "-preset", "slow", "-movflags", "+faststart", str(out_mp4)],
+                stdin=subprocess.PIPE)
+        state["proc"].stdin.write(helpers.add_score(helpers.add_label(frame, label), score).tobytes())
+        state["n"] += 1
 
     def on_frame(e, total):
-        frames.append(e.render())
-        scores.append(total)
+        frame = e.render()
+        state["last"], state["score"] = frame, total
+        if state["i"] % SPEEDUP == 0:
+            write(frame, total)
+        state["i"] += 1
 
     total, steps, _, fell = common.run_episode(net, env, seed, early_stop=False, on_frame=on_frame)
     env.close()
-    frames = frames[::SPEEDUP] + [frames[-1]] * HOLD_FRAMES
-    scores = scores[::SPEEDUP] + [total] * HOLD_FRAMES
-    h, w, _ = frames[0].shape
-    proc = subprocess.Popen(
-        ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-         "-s", f"{w}x{h}", "-r", "50", "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-         "-crf", "26", "-preset", "slow", "-movflags", "+faststart", str(out_mp4)],
-        stdin=subprocess.PIPE)
-    for f, s in zip(frames, scores):
-        proc.stdin.write(helpers.add_score(helpers.add_label(f, label), s).tobytes())
-    proc.stdin.close()
-    proc.wait()
+    for _ in range(HOLD_FRAMES):
+        write(state["last"], total)
+    state["proc"].stdin.close()
+    if state["proc"].wait() != 0:
+        raise RuntimeError(f"ffmpeg failed for {out_mp4}")
     poster = out_mp4.with_suffix(".jpg")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-sseof", "-0.5", "-i", str(out_mp4),
                     "-frames:v", "1", "-q:v", "4", str(poster)], check=True)
     return {"reward_clip": round(total, 1), "terrain": seed - HOF_SEEDS[0] + 1,
             "rewards10": [round(r, 1) for r in rewards], "steps": steps, "fell": fell,
-            "seconds": round(len(frames) / 50, 1)}
+            "seconds": round(state["n"] / 50, 1)}
 
 
 def network_data(genome, config):

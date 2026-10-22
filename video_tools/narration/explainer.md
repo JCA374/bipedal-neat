@@ -122,7 +122,7 @@ While the scores rose, the networks grew. The violet line counts hidden nodes in
 
 ## growth.2
 
-The champion has 4 hidden nodes in one hidden layer, and only 30 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain.
+The champion has 4 hidden nodes in one hidden layer, and only 30 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and kept one small hidden layer. Still a hidden layer, as the rules demand.
 
 ## species
 
@@ -138,7 +138,7 @@ The real test is one hundred terrains the champion has never seen. Its average i
 
 ## results.2
 
-But it falls in 9 of the one hundred, and each fall costs a lot. Almost all falls look the same: 93 percent are forward pitch-overs. The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second. Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred. On the same one hundred terrains, the difference is within the noise. Falling is still what pulls the average down.
+But it falls in 9 of the one hundred, and each fall costs a lot. Almost all falls look the same: 93 percent are forward pitch-overs. The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second. Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred. The score difference between the two is within the noise. Falling is still what pulls the average down.
 
 ## results.3
 

@@ -48,153 +48,153 @@ chapters:
 sources:
   ch01:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: title
   ch02:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: task
   ch03:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: task.2
   ch04:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: task.3
   ch05:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: senses
   ch06:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: senses.2
   ch07:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: senses.3
   ch08:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: reward
   ch09:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: reward.2
   ch10:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: reward.3
   ch11:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: network
   ch12:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: network.2
   ch13:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: network.3
   ch14:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: hidden
   ch15:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: hidden.2
   ch16:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: neat
   ch17:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: neat.2
   ch18:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: neat.3
   ch19:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: neat.4
   ch20:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: fitness
   ch21:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: fitness.2
   ch22:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: fitness.3
   ch23:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: hof
   ch24:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: hof.2
   ch25:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: curve
   ch26:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: curve.2
   ch27:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: curve.3
   ch28:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: stages
   ch29:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: stages.2
   ch30:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: growth
   ch31:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: growth.2
   ch32:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: species
   ch33:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: species.2
   ch34:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: results
   ch35:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: results.2
   ch36:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: results.3
   ch37:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: laptop
   ch38:
     path: /home/jonas/code/games/bi-pedal/bipedal-neat/video_tools/narration/explainer.md
-    sha1: 67dcdb077c82451176cf089d36059eeca14e7014
+    sha1: 314ca3bf1348155bbad603e589a1e28e810b2386
     section: outro
