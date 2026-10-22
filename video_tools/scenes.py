@@ -373,7 +373,8 @@ def scene_hof(ctx, name="hof"):
         paragraph(d, (900, 200), "Noisy: 3 terrains can be lucky or unlucky.", 30, 19, FG, fade(t, 0.5))
         if k >= 1:
             text(d, (900, 300), "Champion", 24, BLUE, fade(t, b.at(1) + 0.3), bold=True)
-            paragraph(d, (900, 340), "Every 10 generations the top 5 walk 10 terrains they have never seen, "
+            n_hof = len(ctx.champ_meta.get("held_out_seeds") or [0] * 10)
+            paragraph(d, (900, 340), f"Every 10 generations the top 5 walk {'10' if n_hof == 10 else f'10 (later {n_hof})'} terrains they have never seen, "
                       "with no early stop. The best average becomes the champion.", 30, 19, FG, fade(t, b.at(1) + 0.6))
         return img
     return Scene(name, render, [7.0, 9.0])
@@ -406,7 +407,7 @@ def scene_curve(ctx, name="curve"):
         line_chart(d, (110, 140, 1180, 600),
                    [(gs, [r["mean"] for r in rows], GREEN, 2, False), (gs, [r["best"] for r in rows], ORANGE, 2, False),
                     (gs, ch, BLUE, 4, True)], gs[-1], -150, ymax, frac, 50, marks=marks)
-        for i, (lab, col) in enumerate([("champion (10 unseen terrains)", BLUE), ("best of generation", ORANGE),
+        for i, (lab, col) in enumerate([("champion (hall-of-fame terrains)", BLUE), ("best of generation", ORANGE),
                                         ("population average", GREEN)]):
             d.rectangle([120 + i * 330, 662, 140 + i * 330, 666], fill=col)
             text(d, (148 + i * 330, 664), lab, 16, MUTED, anchor="lm")
@@ -565,7 +566,7 @@ def scene_laptop(ctx, name="laptop"):
             text(d, (x + 24, 250), big, 44, AMBER, a, bold=True)
             text(d, (x + 24, 320), small, 18, FG, a)
         paragraph(d, (80, 450), "Every network is evaluated on its own, so NEAT spreads across CPU cores with no "
-                  "GPU and almost no memory. For its first two hours it shared the laptop with another training job.",
+                  "GPU and almost no memory. Parts of the run shared the laptop with other training jobs.",
                   90, 22, FG, fade(t, 2.5))
         return img
     return Scene(name, render, [11.0])

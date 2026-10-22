@@ -36,6 +36,14 @@ def build(ctx):
     import json as _json
     hist = _json.load(open(os.path.join(ctx.dir, "run_config.json"))).get("history", [])
     change = next((h for h in hist if h.get("k_seeds", 3) != 3 or h.get("pop_size", 200) != 200), None)
+    penalty = next((h for h in hist if h.get("fall_penalty", 0) > 0), None)
+    n_hof = len(ctx.champ_meta.get("held_out_seeds") or [0] * 10)
+    n_hof_s = {10: "ten", 20: "twenty", 30: "thirty"}.get(n_hof, str(n_hof))
+    analysis = _json.load(open(os.path.join(C.REPO_ROOT, "results", "fall_analysis", os.path.basename(ctx.dir.rstrip("/")),
+                                            "summary.json"))) if os.path.exists(os.path.join(
+        C.REPO_ROOT, "results", "fall_analysis", os.path.basename(ctx.dir.rstrip("/")), "summary.json")) else None
+    cmp_path = os.path.join(ctx.dir, "eval", "compare_v1.json")
+    cmp = _json.load(open(cmp_path)) if os.path.exists(cmp_path) else None
 
     s = {}
     s["title"] = ("This is a neural network learning to walk. Nobody trained it with gradients. "
@@ -88,6 +96,8 @@ def build(ctx):
     s["hof"] = ("The best score in each generation is noisy. Three terrains can be lucky, or unlucky.")
     s["hof.2"] = ("So every ten generations, the top five networks walk ten terrains they have never seen, "
                   "with no early stop. The best average becomes the champion. That is the blue line.")
+    if n_hof != 10:
+        s["hof.2"] += f" Near the end of the run, that test grew to {n_hof_s} terrains."
     if first is not None:
         s["curve"] = (f"Here is the whole run. For the first {r(first, 10)} generations or so, the best networks "
                       "simply stood still. The trap held.")
@@ -101,7 +111,10 @@ def build(ctx):
         plateau = (f" The scores had levelled off, so from generation {change['generation']} each network got "
                    f"{change['k_seeds']} terrains instead of three, and the population grew to {change['pop_size']}.")
     passed = f"The champion passed {top_m} at generation {ms[top_m]['generation']}." if top_m else ""
-    final = (f"After {ctx.G} generations, its average on ten unseen terrains is {r(ctx.champ_meta['mean'])}.")
+    if penalty:
+        plateau += (f" And from generation {penalty['generation']}, after a look at why it fell, every fall cost an "
+                    "extra hundred points during training.")
+    final = (f"After {ctx.G} generations, its average on {n_hof_s} unseen terrains is {r(ctx.champ_meta['mean'])}.")
     s["curve.3"] = " ".join(x for x in (passed, plateau.strip(), final) if x)
     s["stages"] = ("Here are the champions side by side, each on a typical terrain: the middle one of its ten test "
                    "terrains. From a random network, to a shuffle, to a real walk.")
@@ -128,12 +141,24 @@ def build(ctx):
     q25, q50, q75 = (r(v) for v in _np.percentile(ev["rewards"], [25, 50, 75]))
     s["results"] = (f"The real test is one hundred terrains the champion has never seen. "
                     f"Its average is {mean}. Half of its runs score between {q25} and {q75}.")
+    why = ""
+    if analysis:
+        fwd = r(analysis["fall_forward_share"] * 100)
+        why = (f" Almost all falls look the same: {fwd} percent are forward pitch-overs. The walker speeds up, "
+               "its body rises, and then it tips onto its nose within about a third of a second.")
+    if cmp and penalty:
+        better = cmp["diff_ci"][0] > 0
+        worse = cmp["diff_ci"][1] < 0
+        verdict = ("That made a real difference" if better else "That made things worse" if worse
+                   else "On the same one hundred terrains, the difference is within the noise")
+        why += (f" Compared with the champion from before the fall penalty, falls went from {cmp['a']['falls']} "
+                f"to {cmp['b']['falls']} in one hundred. {verdict}.")
     if falls >= 4:
-        s["results.2"] = (f"But it falls in {falls} of the one hundred, and each fall costs a lot. That is what pulls the "
-                          "average down, and it is the main thing left to fix.")
+        s["results.2"] = (f"But it falls in {falls} of the one hundred, and each fall costs a lot." + why +
+                          " Falling is still what pulls the average down.")
     else:
         n = {0: "none", 1: "just one", 2: "just two", 3: "three"}[falls]
-        s["results.2"] = (f"It falls in {n} of the one hundred. It is steady, but slow: "
+        s["results.2"] = (f"It falls in {n} of the one hundred." + why + " It is steady, but slow: "
                           "it walks carefully instead of fast, and speed is what earns the last points.")
     if mean >= 300:
         s["results.3"] = ("That beats the solved line of three hundred. For comparison, the gradient based methods on "

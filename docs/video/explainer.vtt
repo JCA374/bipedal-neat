@@ -165,110 +165,128 @@ The best score in each generation is noisy.
 00:04:07.602 --> 00:04:10.929
 Three terrains can be lucky, or unlucky.
 
-00:04:11.529 --> 00:04:18.560
+00:04:11.529 --> 00:04:18.236
 So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop.
 
-00:04:18.560 --> 00:04:21.372
+00:04:18.236 --> 00:04:20.919
 The best average becomes the champion.
 
-00:04:21.372 --> 00:04:23.506
+00:04:20.919 --> 00:04:22.668
 That is the blue line.
 
-00:04:24.106 --> 00:04:25.927
+00:04:22.668 --> 00:04:26.876
+Near the end of the run, that test grew to twenty terrains.
+
+00:04:27.476 --> 00:04:29.297
 Here is the whole run.
 
-00:04:25.927 --> 00:04:30.843
+00:04:29.297 --> 00:04:34.213
 For the first 70 generations or so, the best networks simply stood still.
 
-00:04:30.843 --> 00:04:32.478
+00:04:34.213 --> 00:04:35.848
 The trap held.
 
-00:04:33.078 --> 00:04:39.811
+00:04:36.448 --> 00:04:43.181
 Then, around generation 69, a network found a slow shuffle that moved forward without falling.
 
-00:04:39.811 --> 00:04:44.402
+00:04:43.181 --> 00:04:47.772
 Its score jumped above zero, and the population followed.
 
-00:04:45.002 --> 00:04:48.748
+00:04:48.372 --> 00:04:51.771
 The champion passed 100 at generation 99.
 
-00:04:48.748 --> 00:04:59.222
+00:04:51.771 --> 00:05:01.274
 The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300.
 
-00:04:59.222 --> 00:05:05.103
-After 674 generations, its average on ten unseen terrains is 200.
+00:05:01.274 --> 00:05:09.458
+And from generation 674, after a look at why it fell, every fall cost an extra hundred points during training.
 
-00:05:05.703 --> 00:05:12.541
+00:05:09.458 --> 00:05:15.030
+After 740 generations, its average on twenty unseen terrains is 189.
+
+00:05:15.630 --> 00:05:22.468
 Here are the champions side by side, each on a typical terrain: the middle one of its ten test terrains.
 
-00:05:12.541 --> 00:05:16.504
+00:05:22.468 --> 00:05:26.431
 From a random network, to a shuffle, to a real walk.
 
-00:05:17.104 --> 00:05:20.434
+00:05:27.031 --> 00:05:30.361
 And this is the final champion.
 
-00:05:25.104 --> 00:05:28.060
+00:05:35.031 --> 00:05:37.987
 While the scores rose, the networks grew.
 
-00:05:28.060 --> 00:05:34.756
+00:05:37.987 --> 00:05:44.683
 The violet line counts hidden nodes in use, and the amber line counts layers from input to output.
 
-00:05:35.356 --> 00:05:41.031
-The champion has 6 hidden nodes in 5 hidden layers, and only 37 connections.
+00:05:45.283 --> 00:05:50.754
+The champion has 4 hidden nodes in one hidden layer, and only 30 connections.
 
-00:05:41.031 --> 00:05:46.166
+00:05:50.754 --> 00:05:55.646
 It started with eight hidden nodes in one layer and 224 connections.
 
-00:05:46.166 --> 00:05:52.479
+00:05:55.646 --> 00:06:01.674
 Evolution threw most of them away, and stacked what was left into a deeper chain.
 
-00:05:53.079 --> 00:05:55.323
+00:06:02.274 --> 00:06:04.518
 This is the number of species.
 
-00:05:55.323 --> 00:06:05.604
+00:06:04.518 --> 00:06:14.799
 A setting called the compatibility threshold decides how different two networks must be to count as separate species, and the code tunes it to aim for about ten.
 
-00:06:06.204 --> 00:06:15.829
+00:06:15.399 --> 00:06:25.024
 In the first hour, that tuning ran away. neat python never merges species, so the count barely fell, and the threshold kept climbing, to thirty eight.
 
-00:06:15.829 --> 00:06:21.002
+00:06:25.024 --> 00:06:30.197
 It is now kept within limits, and the run continued from its checkpoint.
 
-00:06:21.602 --> 00:06:27.655
+00:06:30.797 --> 00:06:36.914
 The real test is one hundred terrains the champion has never seen.
 
-00:06:27.655 --> 00:06:29.864
-Its average is 179.
+00:06:36.914 --> 00:06:39.146
+Its average is 173.
 
-00:06:29.864 --> 00:06:34.336
-Half of its runs score between 191 and 220.
+00:06:39.146 --> 00:06:43.662
+Half of its runs score between 163 and 207.
 
-00:06:34.936 --> 00:06:39.586
-But it falls in 17 of the one hundred, and each fall costs a lot.
+00:06:44.262 --> 00:06:48.222
+But it falls in 9 of the one hundred, and each fall costs a lot.
 
-00:06:39.586 --> 00:06:45.110
-That is what pulls the average down, and it is the main thing left to fix.
+00:06:48.222 --> 00:06:52.348
+Almost all falls look the same: 93 percent are forward pitch-overs.
 
-00:06:45.710 --> 00:06:56.211
+00:06:52.348 --> 00:06:58.399
+The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second.
+
+00:06:58.399 --> 00:07:04.174
+Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred.
+
+00:07:04.174 --> 00:07:08.410
+On the same one hundred terrains, the difference is within the noise.
+
+00:07:08.410 --> 00:07:11.625
+Falling is still what pulls the average down.
+
+00:07:12.225 --> 00:07:22.639
 For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
 
-00:06:56.211 --> 00:07:01.657
-NEAT is 93 points behind PPO, without computing a single gradient.
+00:07:22.639 --> 00:07:28.042
+NEAT is 99 points behind PPO, without computing a single gradient.
 
-00:07:02.257 --> 00:07:08.200
-All of this ran on a four core laptop with no graphics card, in 8 hours of training.
+00:07:28.642 --> 00:07:34.682
+All of this ran on a four core laptop with no graphics card, in 12 hours of training.
 
-00:07:08.200 --> 00:07:14.443
+00:07:34.682 --> 00:07:40.958
 Every network is evaluated on its own, so evolution spreads easily across the cores.
 
-00:07:15.043 --> 00:07:16.349
+00:07:41.558 --> 00:07:42.864
 No gradients.
 
-00:07:16.349 --> 00:07:17.282
+00:07:42.864 --> 00:07:43.797
 No GPU.
 
-00:07:17.282 --> 00:07:21.761
+00:07:43.797 --> 00:07:48.276
 Just a population of networks, mutating, competing, and growing.
 
-00:07:21.761 --> 00:07:26.105
+00:07:48.276 --> 00:07:52.620
 The code, the clips and the data are on the project page.

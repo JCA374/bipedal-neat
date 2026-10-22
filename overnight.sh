@@ -52,6 +52,17 @@ for m in "$RUN_DIR"/milestones/*/; do
     && log "  milestone $name: $($PY -c "import json;d=json.load(open('$RUN_DIR/eval/milestone_$name.json'));print(d['mean'], '+-', d['std'], 'falls', d['fell_frac'])")"
 done
 
+# Paired comparison against the previous published champion, and a fall analysis
+# (failure-analysis-report method) of the current one. Both are optional inputs to the site.
+if [ -d "$RUN_DIR/champion_v1" ]; then
+  log "paired comparison: champion_v1 vs current best on 100 new terrains"
+  $PY experiments/compare.py "$RUN_DIR/champion_v1" "$RUN_DIR" --episodes 100 --workers $W \
+      --out "$RUN_DIR/eval/compare_v1.json" | grep -E '"mean"|"falls"|"diff' | head -8
+fi
+log "fall analysis of the current champion"
+$PY experiments/record_episodes.py --run "$RUN_DIR" --episodes 300 --workers $W --name "$RUN" > /dev/null 2>&1 && \
+  $PY experiments/analyze_falls.py "results/episodes/$RUN.jsonl.gz" 2>&1 | tail -1
+
 # ---------------------------------------------------------------- 3. narration + voice
 log "building narration from the final numbers"
 $PY video_tools/narration.py "$RUN_DIR" 2>/dev/null > video_tools/narration/explainer.md

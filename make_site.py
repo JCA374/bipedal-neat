@@ -120,6 +120,35 @@ def read_stats(run):
     return rows
 
 
+def _copy_analysis(run):
+    """Publish fall analyses (failure-analysis-report method): the diagnosis of the champion
+    before the fix (results/fall_analysis/champion_v1 -> docs/analysis-v1/) and the current
+    champion (results/fall_analysis/<run> -> docs/analysis/). Returns the diagnosis summary."""
+    import shutil
+    out = None
+    for name, dst_name in (("champion_v1", "analysis-v1"), (run.name, "analysis")):
+        src = common.ROOT / "results" / "fall_analysis" / name
+        if not (src / "summary.json").exists():
+            continue
+        dst = DOCS / dst_name
+        dst.mkdir(parents=True, exist_ok=True)
+        for f in src.iterdir():
+            shutil.copy(f, dst / f.name)
+        if out is None:
+            out = (src, dst_name)
+    if out is None:
+        return None
+    src, dst_name = out
+    s = json.loads((src / "summary.json").read_text())
+    feats = sorted(s["features"].values(), key=lambda v: -v["auc"])
+    return {"dir": dst_name, "has_current": (DOCS / "analysis" / "report.html").exists() and dst_name != "analysis",
+            "episodes": s["episodes"], "falls": s["falls"], "forward": s["fall_forward_share"],
+            "onset": s["onset_to_fall_steps"], "mean_reward": s["mean_reward"],
+            "terrain_before": s["terrain_before_fall"], "terrain_all": s["terrain_all"],
+            "top": [{"label": v["label"], "auc": round(v["auc"], 2), "pc": round(v["partial_corr"], 2)} for v in feats[:5]],
+            "max_added": round(max(v["partial_corr"] for v in s["features"].values()), 2)}
+
+
 def _json(p):
     p = Path(p)
     return json.loads(p.read_text()) if p.exists() else None
@@ -148,11 +177,11 @@ def main():
             g, meta = common.load_genome(d / "genome.pkl")
             seen.add(meta["genome_key"])
             stages.append((f"m_{m}", g, meta, MILESTONE_TITLE[m],
-                           f"Generation {meta['generation']}. First champion over {m.replace('first_positive', '0')} on 10 unseen terrains."))
+                           f"Generation {meta['generation']}. First champion over {m.replace('first_positive', '0')} on {len(meta.get('held_out_seeds') or [0] * 10)} unseen terrains."))
     g, meta = common.load_genome(run / "best" / "genome.pkl")
     if meta["genome_key"] not in seen:
         stages.append(("best", g, meta, "Current champion",
-                       f"Generation {meta['generation']}. Best average on 10 unseen terrains so far."))
+                       f"Generation {meta['generation']}. Best average on {len(meta.get('held_out_seeds') or [0] * 10)} unseen terrains so far."))
 
     clips = []
     for key, genome, meta, title, desc in stages:
@@ -197,8 +226,14 @@ def main():
         "params": json.loads((run / "run_config.json").read_text())["effective"],
         "eval": _json(run / "eval" / "best.json"),
         "eval_milestones": {p.stem.replace("milestone_", ""): {k: v for k, v in _json(p).items() if k != "rewards"}
-                            for p in sorted((run / "eval").glob("milestone_*.json"))},
+                            for p in sorted((run / "eval").glob("milestone_*.json"),
+                                          key=lambda p: MILESTONE_ORDER.index(p.stem.replace("milestone_", ""))
+                                          if p.stem.replace("milestone_", "") in MILESTONE_ORDER else 99)},
         "videos": (_json(DOCS / "video" / "videos.json") or {}).get("videos", []),
+        "history": json.loads((run / "run_config.json").read_text()).get("history", []),
+        "hof_terrains": len(champ_meta.get("held_out_seeds") or [0] * 10),
+        "compare": _json(run / "eval" / "compare_v1.json"),
+        "analysis": _copy_analysis(run),
     }
     if data["eval"] and data["eval"].get("genome_key") != champ_meta.get("genome_key"):
         data["eval"] = None  # stale: evaluated an older champion

@@ -124,3 +124,18 @@ def test_smoke_train_resume_applies_new_config(tmp_path):
     assert eff["pop_size"] == 14 and eff["node_add_prob"] == 0.42
     # Reproduction of the restored population used the new pop_size.
     assert abs(len(p2.population) - 14) <= 2
+
+
+@pytest.mark.smoke
+def test_fall_penalty_and_hof_rescore(tmp_path):
+    runs = tmp_path / "runs"
+    base = ["--name", "fp", "--runs-dir", str(runs), "--workers", "2", "--k", "1",
+            "--hof-every", "1", "--hof-top", "1", "--hof-seeds", "2", "--checkpoint-every", "1"]
+    train.main(base + ["--pop-size", "8", "--generations", "1"])
+    (runs / "fp" / "overrides.json").write_text('{"fall_penalty": 100, "hof_seeds": 3}')
+    p, state = train.main(base + ["--resume", "--generations", "2"])
+    eff = json.loads((runs / "fp" / "run_config.json").read_text())["effective"]
+    assert eff["fall_penalty"] == 100 and eff["hof_seeds"] == 3
+    assert state["hof_seeds"] == 3
+    _, meta = common.load_genome(runs / "fp" / "best" / "genome.pkl")
+    assert len(meta["held_out_seeds"]) == 3   # champion re-scored on the new terrain set

@@ -130,6 +130,7 @@
       <a href="#clips">Progress</a>
       <a href="#curve" class="opt">Training</a>
       <a href="#network" class="opt">Network</a>
+      <a href="#falls" class="opt" id="navFalls" hidden>Falls</a>
       <a href="#how" class="opt">How</a>
       <a href="https://github.com/JCA374/bipedal-neat">Code</a>
       <button class="theme-btn" id="theme" aria-label="Toggle dark mode">◐</button>
@@ -158,7 +159,7 @@
 <section id="clips"><div class="wrap">
   <h2><span class="num">1</span>Progress, stage by stage</h2>
   <p class="intro">Each clip shows the champion at that stage on its <b>median</b> run: of the 10 unseen
-    terrains it was judged on, the one with the middle score. That makes it a typical run, not a lucky or
+    terrains of the original hall of fame, the one with the middle score. That makes it a typical run, not a lucky or
     unlucky one. Played at 2× speed. The score in the corner is the running reward on that terrain, and "avg"
     is the mean over all 10.</p>
   <div class="clips" id="clipGrid"></div>
@@ -168,7 +169,8 @@
   <h2><span class="num">2</span>Training curve</h2>
   <p class="intro">Fitness is the mean reward over 3 terrains per generation, shared by the whole population.
     An episode is cut short if the walker stops moving forward, so standing still scores about −9 while
-    falling costs −100. The champion line is the re-check on 10 unseen terrains every 10 generations.</p>
+    falling costs −100. The champion line is the re-check on unseen hall-of-fame terrains every 10 generations (10 terrains, 20 after
+    the fall analysis; the line restarts there because the two are not comparable).</p>
   <div class="panel chart">
     <div class="legend" id="legend"></div>
     <div class="scroll-x"><div id="chart"></div></div>
@@ -197,8 +199,19 @@
   <div class="tablewrap" id="msTableWrap" style="max-height:none"><table id="msTable"></table></div>
 </div></section>
 
+<section id="falls" hidden><div class="wrap">
+  <h2><span class="num">5</span>Why it falls, and the fix</h2>
+  <p class="intro" id="fallsIntro"></p>
+  <div class="cols">
+    <div><ul id="fallsList"></ul></div>
+    <div><a id="anaLink" href="analysis/report.html"><img id="anaImg" src="analysis/onset.png" alt="How a fall starts: four frames from the last healthy step to the fall" style="border-radius:10px;border:1px solid var(--line)"></a>
+      <p class="note" id="anaNote"></p></div>
+  </div>
+  <div id="cmpBox"></div>
+</div></section>
+
 <section id="how"><div class="wrap">
-  <h2><span class="num">5</span>How it works</h2>
+  <h2><span class="num">6</span>How it works</h2>
   <div class="cols">
     <div>
       <ul>
@@ -215,10 +228,10 @@
       <ul>
         <li><b>Early stop.</b> An episode ends when the hull moves less than 1 unit in 150 steps. That saves most
           of the simulation time, but it also makes standing still a tempting local optimum.</li>
-        <li><b>Hall of fame.</b> Every 10 generations the top 5 are re-run on 10 unseen terrains with full
+        <li><b>Hall of fame.</b> Every 10 generations the top 5 are re-run on 10 (later 20) unseen terrains with full
           episodes. Only that average picks the champion and the milestones.</li>
         <li><b>Hardware.</b> Intel i5-8250U (4 cores / 8 threads), no GPU, 4 to 6 worker processes at ~50 MB each.
-          For the first two hours it shared the CPU with another training run; overnight it had the laptop to itself.</li>
+          Parts of the run shared the CPU with other training jobs on the same laptop.</li>
       </ul>
     </div>
   </div>
@@ -258,12 +271,12 @@ const svgEl = (tag, attrs = {}, parent) => {
   const hv = document.getElementById("heroVideo");
   hv.src = `clips/${last.key}.mp4`; hv.poster = `clips/${last.key}.jpg`;
   document.getElementById("heroNote").textContent =
-    `${last.title}, generation ${last.generation}: average ${fmt(last.mean)} ± ${last.std} on 10 unseen terrains. ` +
+    `${last.title}, generation ${last.generation}: average ${fmt(last.mean)} ± ${last.std} on ${last.key === "best" || last === DATA.clips[DATA.clips.length - 1] ? DATA.hof_terrains : 10} unseen terrains. ` +
     `${last.hidden_in_use} hidden nodes in ${last.depth - 1} hidden layer${last.depth > 2 ? "s" : ""}.`;
   const s = DATA.stats, lastRow = s[s.length - 1];
   const tiles = [
     DATA.eval ? [fmt(DATA.eval.mean), "champion average over 100 unseen terrains", "var(--s1)"]
-              : [fmt(DATA.champion.mean), "champion average reward (10 unseen terrains)", "var(--s1)"],
+              : [fmt(DATA.champion.mean), `champion average reward (${DATA.hof_terrains} unseen terrains)`, "var(--s1)"],
     [String(lastRow.g + 1), "generations so far"],
     [String(DATA.champion.hidden_in_use), `hidden nodes in use (depth ${DATA.champion.depth})`],
     [`${(lastRow.wall / 3600).toFixed(1)} h`, `training time · ${(lastRow.steps / 1e6).toFixed(1)} M env steps`],
@@ -293,9 +306,11 @@ const svgEl = (tag, attrs = {}, parent) => {
 (() => {
   const rows = DATA.stats;
   let champ = null;
-  const champRows = rows.map(r => { if (r.hof != null && (champ == null || r.hof > champ)) champ = r.hof; return champ; });
+  // The champion line restarts where the hall-of-fame terrain count changed (scores on 10 vs 20 terrains differ).
+  const resets = new Set((DATA.history || []).filter((h, i, a) => i > 0 && h.hof_seeds !== a[i - 1].hof_seeds || (i === 0 && h.hof_seeds && h.hof_seeds !== 10)).map(h => h.generation));
+  const champRows = rows.map(r => { if (resets.has(r.g)) champ = null; if (r.hof != null && (champ == null || r.hof > champ)) champ = r.hof; return champ; });
   const series = [
-    { key: "champ", name: "Champion (10 unseen terrains)", color: "var(--s1)", width: 2.5, vals: champRows, step: true },
+    { key: "champ", name: "Champion (hall of fame)", color: "var(--s1)", width: 2.5, vals: champRows, step: true },
     { key: "best", name: "Best of generation (3 terrains)", color: "var(--s2)", width: 1.5, vals: rows.map(r => r.best) },
     { key: "mean", name: "Population mean", color: "var(--s3)", width: 2, vals: rows.map(r => r.mean) },
   ];
@@ -433,6 +448,42 @@ const svgEl = (tag, attrs = {}, parent) => {
   const rows = Object.entries(ms).map(([k, e]) => `<tr><td style="text-align:left">${names[k] || k}</td><td>${fmt(e.mean)}</td><td>${e.std.toFixed(0)}</td><td>${Math.round(e.fell_frac * 100)}%</td><td>${e.hidden_in_use} / ${e.depth}</td></tr>`);
   rows.push(`<tr><td style="text-align:left"><b>Champion</b></td><td><b>${fmt(ev.mean)}</b></td><td>${ev.std.toFixed(0)}</td><td>${falls}%</td><td>${ev.hidden_in_use} / ${ev.depth}</td></tr>`);
   document.getElementById("msTable").innerHTML = `<tr><th style="text-align:left">Network</th><th>Mean (100 terrains)</th><th>Std</th><th>Falls</th><th>Hidden / depth</th></tr>` + rows.join("");
+})();
+
+// ---------- falls
+(() => {
+  const a = DATA.analysis;
+  if (!a) return;
+  document.getElementById("falls").hidden = false;
+  document.getElementById("navFalls").hidden = false;
+  const pct = v => `${Math.round(v * 100)}%`;
+  document.getElementById("anaLink").href = `${a.dir}/report.html`;
+  document.getElementById("anaImg").src = `${a.dir}/onset.png`;
+  document.getElementById("anaNote").innerHTML = `How a fall starts: the last healthy step, two steps in between, and the fall. ` +
+    `<a href="${a.dir}/report.html">Full fall analysis →</a>` +
+    (a.has_current ? ` · <a href="analysis/report.html">Same analysis of the current champion →</a>` : "");
+  document.getElementById("fallsIntro").textContent =
+    `The diagnosis: the champion before the fix walked ${a.episodes} more unseen terrains with every step logged. It fell ${a.falls} times ` +
+    `(${pct(a.falls / a.episodes)}). The report follows the failure-analysis method: what failure looks like, where it ` +
+    `happens, what drifts before it, what predicts it, what causes it, and how it starts.`;
+  const items = [
+    `<b>One kind of fall.</b> ${pct(a.forward)} are forward pitch-overs: the hull tips past vertical onto its nose.`,
+    `<b>Fast.</b> From the last healthy step to the fall takes a median of ${a.onset.median} steps (${(a.onset.median / 50).toFixed(1)} s).`,
+    `<b>Speed comes first.</b> Before a fall the walker speeds up and its hull rises. The strongest single warning is the ${a.top[0].label} (AUC ${a.top[0].auc} for a fall within 1 s).`,
+    `<b>Not the terrain.</b> Falls happen on flat ground as often as anywhere: ${pct(a.terrain_before.flat)} flat before a fall vs ${pct(a.terrain_all.flat)} overall.`,
+    `<b>Not missing inputs.</b> No extra signal adds much beyond the 24 inputs (partial correlation at most ${a.max_added}), so the fix is selection, not sensors.`,
+    `<b>The fix tried:</b> champions are checked on 20 terrains instead of 10, and in training every fall costs an extra 100 points (reported scores stay raw).`,
+  ];
+  document.getElementById("fallsList").innerHTML = items.map(s => `<li>${s}</li>`).join("");
+  const c = DATA.compare;
+  if (c) {
+    const sig = c.diff_ci[0] > 0 ? "a real improvement" : c.diff_ci[1] < 0 ? "a real drop" : "within the noise";
+    document.getElementById("cmpBox").innerHTML = `<div class="stats">
+      <div class="stat"><b>${fmt(c.a.mean)}</b><span>before the fix: generation ${c.a.generation}, ${c.a.falls} falls / ${c.episodes}</span></div>
+      <div class="stat"><b style="color:var(--s1)">${fmt(c.b.mean)}</b><span>after the fix: generation ${c.b.generation}, ${c.b.falls} falls / ${c.episodes}</span></div>
+      <div class="stat"><b>${fmt(c.diff)}</b><span>paired difference, 95% CI ${fmt(c.diff_ci[0])} to ${fmt(c.diff_ci[1])}: ${sig}</span></div>
+      <div class="stat"><b>${pct(c.b_wins_share)}</b><span>of the ${c.episodes} terrains where the new champion scores higher</span></div></div>`;
+  }
 })();
 
 // ---------- network

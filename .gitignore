@@ -14,3 +14,4 @@ video_tools/cache/
 docs/video/stills/
 voice/*.txt
 voice/*/audio/
+results/episodes/

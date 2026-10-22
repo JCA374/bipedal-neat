@@ -33,6 +33,17 @@
     "enabled_conns": 30
   },
   {
+    "generation": 709,
+    "genome_key": 151712,
+    "mean": 188.76426782757045,
+    "std": 32.0559031303523,
+    "train_fitness": 195.38462241254746,
+    "hidden_in_use": 4,
+    "depth": 2,
+    "nodes": 10,
+    "enabled_conns": 30
+  },
+  {
     "generation": 619,
     "genome_key": 126289,
     "mean": 187.68367791391455,
@@ -99,6 +110,17 @@
     "enabled_conns": 21
   },
   {
+    "generation": 689,
+    "genome_key": 146089,
+    "mean": 180.495539846248,
+    "std": 15.568853972808489,
+    "train_fitness": 181.09934111703188,
+    "hidden_in_use": 2,
+    "depth": 2,
+    "nodes": 11,
+    "enabled_conns": 35
+  },
+  {
     "generation": 659,
     "genome_key": 137928,
     "mean": 180.06504934461722,
@@ -110,6 +132,28 @@
     "enabled_conns": 46
   },
   {
+    "generation": 739,
+    "genome_key": 159079,
+    "mean": 179.11903579735662,
+    "std": 14.126286696737534,
+    "train_fitness": 169.58101611789317,
+    "hidden_in_use": 1,
+    "depth": 2,
+    "nodes": 9,
+    "enabled_conns": 33
+  },
+  {
+    "generation": 719,
+    "genome_key": 154625,
+    "mean": 176.96760882413946,
+    "std": 57.875953650945945,
+    "train_fitness": 196.0040385049302,
+    "hidden_in_use": 2,
+    "depth": 3,
+    "nodes": 12,
+    "enabled_conns": 36
+  },
+  {
     "generation": 559,
     "genome_key": 109630,
     "mean": 176.67706847900425,
@@ -119,6 +163,28 @@
     "depth": 6,
     "nodes": 11,
     "enabled_conns": 28
+  },
+  {
+    "generation": 719,
+    "genome_key": 154842,
+    "mean": 176.64135587157216,
+    "std": 41.02418511255244,
+    "train_fitness": 181.82895429879426,
+    "hidden_in_use": 2,
+    "depth": 2,
+    "nodes": 9,
+    "enabled_conns": 31
+  },
+  {
+    "generation": 699,
+    "genome_key": 148622,
+    "mean": 176.4476770969806,
+    "std": 22.107997800807304,
+    "train_fitness": 183.05034736599774,
+    "hidden_in_use": 4,
+    "depth": 2,
+    "nodes": 11,
+    "enabled_conns": 34
   },
   {
     "generation": 629,
@@ -152,71 +218,5 @@
     "depth": 6,
     "nodes": 12,
     "enabled_conns": 34
-  },
-  {
-    "generation": 599,
-    "genome_key": 121107,
-    "mean": 174.6533055296188,
-    "std": 22.547408898616617,
-    "train_fitness": 182.95513557495633,
-    "hidden_in_use": 3,
-    "depth": 4,
-    "nodes": 11,
-    "enabled_conns": 35
-  },
-  {
-    "generation": 529,
-    "genome_key": 101539,
-    "mean": 171.92370590144392,
-    "std": 30.18779218252041,
-    "train_fitness": 180.98106336900628,
-    "hidden_in_use": 3,
-    "depth": 4,
-    "nodes": 8,
-    "enabled_conns": 29
-  },
-  {
-    "generation": 629,
-    "genome_key": 129273,
-    "mean": 170.61691236797674,
-    "std": 20.236152889842682,
-    "train_fitness": 172.96507777041415,
-    "hidden_in_use": 6,
-    "depth": 5,
-    "nodes": 12,
-    "enabled_conns": 39
-  },
-  {
-    "generation": 559,
-    "genome_key": 109287,
-    "mean": 170.17179479715924,
-    "std": 32.68051433419797,
-    "train_fitness": 183.66630611756634,
-    "hidden_in_use": 3,
-    "depth": 2,
-    "nodes": 10,
-    "enabled_conns": 28
-  },
-  {
-    "generation": 549,
-    "genome_key": 107014,
-    "mean": 169.03793560243915,
-    "std": 41.516462001419264,
-    "train_fitness": 188.64840940001753,
-    "hidden_in_use": 5,
-    "depth": 5,
-    "nodes": 10,
-    "enabled_conns": 33
-  },
-  {
-    "generation": 439,
-    "genome_key": 75504,
-    "mean": 168.0373064861593,
-    "std": 4.229000976186728,
-    "train_fitness": 166.43537352734086,
-    "hidden_in_use": 9,
-    "depth": 4,
-    "nodes": 15,
-    "enabled_conns": 112
   }
 ]

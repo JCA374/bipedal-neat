@@ -27,3 +27,15 @@
 1. Action repeat 2 (PLAN phase 4, step 2): more forward motion per decision.
 2. Fitness shaping against falls, e.g. no early-stop credit for standing, or a hull-stability bonus. Report raw reward only.
 3. More time: the champion improved in bursts (gen 99, 238, 520), so a longer run may break the plateau again.
+
+## Fall analysis of the gen-674 champion (2026-10-22, `experiments/`)
+- `record_episodes.py` (300 terrains, seeds 3e7+) + `analyze_falls.py` (failure-analysis-report method). Report: `docs/analysis-v1/report.html`.
+- 39/300 falls (13%). 90% are forward pitch-overs. The walker normally leans back ~0.7 rad. Before a fall it speeds up (vx 0.27 → 0.45 over ~60 steps), the hull rises (1.57 → 1.9), then it pitches past vertical. Last healthy step → fall: median 15 steps (0.3 s).
+- Terrain is not the cause: 77% flat before falls vs 67% overall. No candidate signal adds much beyond the 24 inputs (max partial correlation 0.19), so this is a selection/policy problem, not missing sensors.
+- Also: no episode reaches the end of the course. All 261 non-falling episodes run out of time at x ≈ 74 of ~88.
+- `reselect.py`: re-selecting from the final population (top 40, 30 selection terrains, paired on 100 new terrains) found safer walkers (4–7 falls vs 16) but not better ones. Best difference −3.4 [95% CI −19.5, +13.9]. Speed and falls trade off, so the champion was kept.
+- The champion re-scored on 20 hall-of-fame terrains: 200.0 → 179.9. Its 10-terrain score was lucky.
+
+## Run 1, phase 4: fall penalty (2026-10-22 12:34 → 17:00)
+- Resumed from gen 674 with `overrides.json`: K=5, pop 300, **fall_penalty 100** (training fitness only; all reported scores stay raw), **hof_seeds 20**. The previous champion is kept as `runs/baseline/champion_v1` for a paired comparison on 100 new terrains (`experiments/compare.py`, seeds 4e7+).
+- 4 workers: two lunar-lander runs shared the CPU.

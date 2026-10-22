@@ -1,0 +1,35 @@
+{
+  "episodes": 100,
+  "seed0": 40000000,
+  "a": {
+    "path": "runs/baseline/champion_v1",
+    "mean": 173.27517701934093,
+    "falls": 17,
+    "generation": 539,
+    "hidden_in_use": 6,
+    "depth": 6,
+    "nodes": 12,
+    "enabled_conns": 37
+  },
+  "b": {
+    "path": "runs/baseline",
+    "mean": 167.87434817779635,
+    "falls": 12,
+    "generation": 709,
+    "hidden_in_use": 4,
+    "depth": 2,
+    "nodes": 10,
+    "enabled_conns": 30
+  },
+  "diff": -5.4008288415445715,
+  "diff_ci": [
+    -26.49932116811682,
+    15.962088072129719
+  ],
+  "fall_diff": -0.05,
+  "fall_diff_ci": [
+    -0.15,
+    0.05
+  ],
+  "b_wins_share": 0.4
+}

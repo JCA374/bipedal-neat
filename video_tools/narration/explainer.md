@@ -94,7 +94,7 @@ The best score in each generation is noisy. Three terrains can be lucky, or unlu
 
 ## hof.2
 
-So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop. The best average becomes the champion. That is the blue line.
+So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop. The best average becomes the champion. That is the blue line. Near the end of the run, that test grew to twenty terrains.
 
 ## curve
 
@@ -106,7 +106,7 @@ Then, around generation 69, a network found a slow shuffle that moved forward wi
 
 ## curve.3
 
-The champion passed 100 at generation 99. The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300. After 674 generations, its average on ten unseen terrains is 200.
+The champion passed 100 at generation 99. The scores had levelled off, so from generation 430 each network got 5 terrains instead of three, and the population grew to 300. And from generation 674, after a look at why it fell, every fall cost an extra hundred points during training. After 740 generations, its average on twenty unseen terrains is 189.
 
 ## stages
 
@@ -122,7 +122,7 @@ While the scores rose, the networks grew. The violet line counts hidden nodes in
 
 ## growth.2
 
-The champion has 6 hidden nodes in 5 hidden layers, and only 37 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain.
+The champion has 4 hidden nodes in one hidden layer, and only 30 connections. It started with eight hidden nodes in one layer and 224 connections. Evolution threw most of them away, and stacked what was left into a deeper chain.
 
 ## species
 
@@ -134,19 +134,19 @@ In the first hour, that tuning ran away. neat python never merges species, so th
 
 ## results
 
-The real test is one hundred terrains the champion has never seen. Its average is 179. Half of its runs score between 191 and 220.
+The real test is one hundred terrains the champion has never seen. Its average is 173. Half of its runs score between 163 and 207.
 
 ## results.2
 
-But it falls in 17 of the one hundred, and each fall costs a lot. That is what pulls the average down, and it is the main thing left to fix.
+But it falls in 9 of the one hundred, and each fall costs a lot. Almost all falls look the same: 93 percent are forward pitch-overs. The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second. Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred. On the same one hundred terrains, the difference is within the noise. Falling is still what pulls the average down.
 
 ## results.3
 
-For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 93 points behind PPO, without computing a single gradient.
+For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3. NEAT is 99 points behind PPO, without computing a single gradient.
 
 ## laptop
 
-All of this ran on a four core laptop with no graphics card, in 8 hours of training. Every network is evaluated on its own, so evolution spreads easily across the cores.
+All of this ran on a four core laptop with no graphics card, in 12 hours of training. Every network is evaluated on its own, so evolution spreads easily across the cores.
 
 ## outro
 

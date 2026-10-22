@@ -1,0 +1,85 @@
+{
+  "select_seeds": 30,
+  "compare_seeds": 100,
+  "champion": {
+    "mean": 173.8240860251151,
+    "falls": 16,
+    "genome_key": 104365,
+    "generation": 539
+  },
+  "finalists": [
+    {
+      "name": "g141302",
+      "mean": 166.77151094026746,
+      "falls": 7,
+      "diff": -7.052575084847631,
+      "diff_ci": [
+        -26.354567504186036,
+        13.00092468511549
+      ],
+      "fall_diff_ci": [
+        -0.18,
+        0.0
+      ],
+      "hidden_in_use": 4,
+      "depth": 3,
+      "nodes": 11,
+      "enabled_conns": 39
+    },
+    {
+      "name": "g141804",
+      "mean": 165.7193113559403,
+      "falls": 7,
+      "diff": -8.104774669174803,
+      "diff_ci": [
+        -26.98456874602311,
+        11.53445292139389
+      ],
+      "fall_diff_ci": [
+        -0.18,
+        -0.01
+      ],
+      "hidden_in_use": 8,
+      "depth": 6,
+      "nodes": 14,
+      "enabled_conns": 38
+    },
+    {
+      "name": "g141965",
+      "mean": 170.42695629628142,
+      "falls": 4,
+      "diff": -3.3971297288336793,
+      "diff_ci": [
+        -19.53818145976693,
+        13.87492569609189
+      ],
+      "fall_diff_ci": [
+        -0.2,
+        -0.04
+      ],
+      "hidden_in_use": 6,
+      "depth": 4,
+      "nodes": 12,
+      "enabled_conns": 38
+    },
+    {
+      "name": "g141669",
+      "mean": 142.54058601345866,
+      "falls": 28,
+      "diff": -31.283500011656432,
+      "diff_ci": [
+        -55.658402988035526,
+        -7.500333007249554
+      ],
+      "fall_diff_ci": [
+        0.01,
+        0.24
+      ],
+      "hidden_in_use": 5,
+      "depth": 4,
+      "nodes": 12,
+      "enabled_conns": 36
+    }
+  ],
+  "winner": null
+}

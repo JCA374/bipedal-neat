@@ -55,14 +55,15 @@ def eval_genome(task):
     genome, seeds, early_stop = task
     config, env = _W["config"], _W["env"]
     net = common.make_net(genome, config)
-    rewards, steps, saved = [], 0, 0
+    rewards, steps, saved, falls = [], 0, 0, 0
     for s in seeds:
-        r, n, sv, _ = common.run_episode(net, env, s, early_stop=early_stop)
+        r, n, sv, fell = common.run_episode(net, env, s, early_stop=early_stop)
         rewards.append(r)
         steps += n
         saved += sv
+        falls += int(fell)
     hidden = common.topology(genome, config)["hidden_in_use"]
-    return {"rewards": rewards, "steps": steps, "saved": saved, "hidden": hidden}
+    return {"rewards": rewards, "steps": steps, "saved": saved, "hidden": hidden, "falls": falls}
 
 
 # ---------------------------------------------------------------- helpers
@@ -163,6 +164,8 @@ def effective_params(config, args):
         "k_seeds": args.k,
         "early_stop": not args.no_early_stop,
         "workers": args.workers,
+        "fall_penalty": args.fall_penalty,
+        "hof_seeds": args.hof_seeds,
     }
 
 
@@ -185,6 +188,8 @@ def main(argv=None):
     ap.add_argument("--target-species", type=int, default=10,
                     help="adapt compatibility_threshold toward this many species (0 = fixed ini value)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fall-penalty", type=float, default=0.0,
+                    help="training-only extra cost per fall, on top of the env's -100 (reported scores stay raw)")
     ap.add_argument("--stop-at", type=float, default=None,
                     help="stop once the held-out champion mean reaches this (e.g. 300)")
     ap.add_argument("--runs-dir", default=str(common.ROOT / "runs"))
@@ -200,6 +205,10 @@ def main(argv=None):
             args.k = int(overrides["k"])
         if "pop_size" in overrides:
             args.pop_size = int(overrides["pop_size"])
+        if "fall_penalty" in overrides:
+            args.fall_penalty = float(overrides["fall_penalty"])
+        if "hof_seeds" in overrides:
+            args.hof_seeds = int(overrides["hof_seeds"])
         print(f"Overrides from {ov_path}: {overrides}")
     ckpt_dir = run_dir / "checkpoints"
     ckpt_path = ckpt_dir / "latest.pkl.gz"
@@ -305,7 +314,8 @@ def main(argv=None):
                            chunksize=max(1, len(genomes) // (args.workers * 4)))
         steps = saved = linear = 0
         for (_, g), r in zip(genomes, results):
-            f = float(np.mean(r["rewards"]))
+            # Training-only shaping: an extra cost per fall (raw reward is what gets reported).
+            f = float(np.mean(r["rewards"])) - args.fall_penalty * r["falls"] / len(r["rewards"])
             if r["hidden"] == 0:
                 f = linear_penalty(f)
                 linear += 1
@@ -352,6 +362,19 @@ def main(argv=None):
     def checkpoint():
         state["wall_seconds"] = wall()
         save_checkpoint(ckpt_path, p, state)
+
+    # Champion scores are only comparable on the same terrains: if the number of
+    # hall-of-fame terrains changed, re-score the current champion on the new set.
+    if state.get("hof_seeds", 10) != args.hof_seeds and (run_dir / "best" / "genome.pkl").exists():
+        g, meta = common.load_genome(run_dir / "best" / "genome.pkl")
+        seeds = held_out_seeds(args.hof_seeds)
+        rs = [r["rewards"][0] for r in pool.map(eval_genome, [(g, [s], False) for s in seeds], chunksize=1)]
+        print(f"HOF terrains {state.get('hof_seeds', 10)} -> {args.hof_seeds}: champion re-scored "
+              f"{state['best_score']:.1f} -> {np.mean(rs):.1f}")
+        state["best_score"] = float(np.mean(rs))
+        meta.update(mean=float(np.mean(rs)), std=float(np.std(rs)), held_out_seeds=seeds)
+        save_best(run_dir / "best", g, meta, args.config)
+    state["hof_seeds"] = args.hof_seeds
 
     try:
         while True:

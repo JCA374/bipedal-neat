@@ -1,28 +1,40 @@
 WEBVTT
 
-00:00:05.350 --> 00:00:11.403
+00:00:05.350 --> 00:00:11.467
 The real test is one hundred terrains the champion has never seen.
 
-00:00:11.403 --> 00:00:13.612
-Its average is 179.
+00:00:11.467 --> 00:00:13.699
+Its average is 173.
 
-00:00:13.612 --> 00:00:18.084
-Half of its runs score between 191 and 220.
+00:00:13.699 --> 00:00:18.215
+Half of its runs score between 163 and 207.
 
-00:00:18.684 --> 00:00:23.334
-But it falls in 17 of the one hundred, and each fall costs a lot.
+00:00:18.815 --> 00:00:22.775
+But it falls in 9 of the one hundred, and each fall costs a lot.
 
-00:00:23.334 --> 00:00:28.858
-That is what pulls the average down, and it is the main thing left to fix.
+00:00:22.775 --> 00:00:26.901
+Almost all falls look the same: 93 percent are forward pitch-overs.
 
-00:00:29.458 --> 00:00:39.959
+00:00:26.901 --> 00:00:32.952
+The walker speeds up, its body rises, and then it tips onto its nose within about a third of a second.
+
+00:00:32.952 --> 00:00:38.727
+Compared with the champion from before the fall penalty, falls went from 17 to 12 in one hundred.
+
+00:00:38.727 --> 00:00:42.963
+On the same one hundred terrains, the difference is within the noise.
+
+00:00:42.963 --> 00:00:46.178
+Falling is still what pulls the average down.
+
+00:00:46.778 --> 00:00:57.192
 For comparison, gradient based methods on the same laptop reached about two hundred and seventy with PPO, and just over three hundred with TD3.
 
-00:00:39.959 --> 00:00:45.405
-NEAT is 93 points behind PPO, without computing a single gradient.
+00:00:57.192 --> 00:01:02.595
+NEAT is 99 points behind PPO, without computing a single gradient.
 
-00:00:46.005 --> 00:00:51.948
-All of this ran on a four core laptop with no graphics card, in 8 hours of training.
+00:01:03.195 --> 00:01:09.235
+All of this ran on a four core laptop with no graphics card, in 12 hours of training.
 
-00:00:51.948 --> 00:00:58.191
+00:01:09.235 --> 00:01:15.511
 Every network is evaluated on its own, so evolution spreads easily across the cores.

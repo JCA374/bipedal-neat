@@ -1,1 +1,2 @@
-{"k": 5, "pop_size": 300, "reason": "champion plateaued at ~158 from gen 238 to 333 (PLAN phase 4, step 1)"}
+{"k": 5, "pop_size": 300, "fall_penalty": 100, "hof_seeds": 20,
+ "reason": "fall analysis: 13% forward pitch-overs after risky speed-ups; selection on 10 terrains can't see a 13% fall rate (PLAN phase 4, step 4: fitness shaping, training only)"}

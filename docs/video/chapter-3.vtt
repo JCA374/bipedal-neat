@@ -72,11 +72,14 @@ The best score in each generation is noisy.
 00:01:37.465 --> 00:01:40.792
 Three terrains can be lucky, or unlucky.
 
-00:01:41.392 --> 00:01:48.423
+00:01:41.392 --> 00:01:48.099
 So every ten generations, the top five networks walk ten terrains they have never seen, with no early stop.
 
-00:01:48.423 --> 00:01:51.235
+00:01:48.099 --> 00:01:50.782
 The best average becomes the champion.
 
-00:01:51.235 --> 00:01:53.369
+00:01:50.782 --> 00:01:52.531
 That is the blue line.
+
+00:01:52.531 --> 00:01:56.739
+Near the end of the run, that test grew to twenty terrains.
